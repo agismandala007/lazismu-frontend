@@ -6,6 +6,17 @@
       Kelola keuangan dengan sistem yang baru <br />
       semoga lebih membantu
     </p>
+    <div
+      v-if="validation != null"
+      class="mb-3 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+      role="alert"
+    >
+      <strong class="font-bold">Error</strong>
+      <span class="block sm:inline">{{ validation }}</span>
+      <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+
+      </span>
+    </div>
     <form class="w-full card" @submit.prevent="userLogin">
       <div class="form-group">
         <label for="" class="text-grey">Cabang</label>
@@ -18,7 +29,7 @@
       <div class="form-group">
         <label for="" class="text-grey">Password</label>
         <input
-          :type="show === true ? 'text' : 'password' "
+          :type="show === true ? 'text' : 'password'"
           class="input-field"
           v-model="login.password"
         />
@@ -45,7 +56,8 @@
         </svg>
 
         <svg
-          v-else @click="show = !show"
+          v-else
+          @click="show = !show"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -80,26 +92,35 @@ export default {
         password: '',
         cabang_id: '',
       },
+      validation: null,
     }
   },
   methods: {
     async userLogin() {
       try {
-       await this.$auth.loginWith('local', { data: this.login })
-        .then((response) =>{
-          localStorage.setItem('role', JSON.stringify(response.data.result.user.role))
-          localStorage.setItem('cabang_id', JSON.stringify(response.data.result.user.cabang_id))
-          
-          this.$router.push({
-          name: 'cabang-id-overview',
-          params: {
-            id: this.login.cabang_id,
-          },
-        })
+        await this.$auth
+          .loginWith('local', { data: this.login })
+          .then((response) => {
+            localStorage.setItem(
+              'role',
+              JSON.stringify(response.data.result.user.role)
+            )
+            localStorage.setItem(
+              'cabang_id',
+              JSON.stringify(response.data.result.user.cabang_id)
+            )
 
-        })
+            this.$router.push({
+              name: 'cabang-id-overview',
+              params: {
+                id: this.login.cabang_id,
+              },
+            })
+          })
         console.log(response)
       } catch (err) {
+        //assign validation
+        this.validation = err.response.data.meta.message
         console.log(err)
       }
     },
@@ -108,7 +129,6 @@ export default {
 </script>
 
 <style>
-
 .show-icon {
   position: absolute;
   right: 35px;
@@ -123,5 +143,4 @@ export default {
   z-index: 11;
   cursor: pointer;
 }
-
 </style>

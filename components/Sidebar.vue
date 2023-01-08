@@ -47,10 +47,10 @@
             </div>
             <div class="flex flex-col gap-4">
                 <div class="text-sm text-grey">Others</div>
-                <a href="#" class="nav-link">
+                <NuxtLink :to="{name: 'cabang-id-cabang'}" class="nav-link">
                     <img src="/assets/svgs/ic-home.svg" alt="">
-                    Company
-                </a>
+                    Cabang
+                </NuxtLink>
                 <button @click="logout" class="nav-link">
                     <img src="/assets/svgs/ic-signout.svg" alt="">
                     Logout

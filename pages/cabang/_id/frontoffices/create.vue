@@ -111,7 +111,7 @@ export default {
         tempatbayar: '',
         coadebit_id: '',
         coakredit_id: '',
-        // company_id: this.$route.params.id,
+        company_id: this.$route.params.id,
         
       },
     }

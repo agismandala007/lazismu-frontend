@@ -38,12 +38,12 @@
                         <div class="text-xl font-medium text-dark">
                             Statistics
                         </div>
-                        <p class="text-grey">Your business growth</p>
+                        <p class="text-grey">Perkembangan Pemasukan dan Pengeluaran</p>
                     </div>
                 </div>
             </div>
 
-            <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:gap-11">
+            <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-2 lg:gap-11">
                 <div class="card !gap-y-10 min-h-[200px]">
                     <div class="text-center items-center">
                         <div class="">
