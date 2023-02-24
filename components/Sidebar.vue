@@ -16,7 +16,7 @@
             </div>
             <div class="flex flex-col gap-4">
                 <div class="text-sm text-grey">Daily Use</div>
-                <NuxtLink :to="{name: 'cabang-id-overview', params: { id: cabang_id }}"  class="nav-link" >
+                <NuxtLink v-if="role === 1" :to="{name: 'cabang-id-overview', params: { id: cabang_id }}"  class="nav-link" >
                     <img src="/assets/svgs/ic-grid.svg" alt="">
                     Overview
                 </Nuxtlink>
@@ -24,32 +24,36 @@
                     <img src="/assets/svgs/ic-users.svg" alt="">
                     Chart of Account
                 </NuxtLink>
-                <NuxtLink :to="{name: 'cabang-id-frontoffices' , params: { id: cabang_id }}"  class="nav-link">
+                <NuxtLink v-if="role === 1 || 2" :to="{name: 'cabang-id-frontoffices' , params: { id: cabang_id }}"  class="nav-link">
                     <img src="/assets/svgs/ic-briefcase.svg" alt="">
                     Front Offices
                 </NuxtLink>
-                <NuxtLink :to="{name: 'cabang-id-kasbesar', params: { id: cabang_id }}" class="nav-link">
+                <NuxtLink v-if="role === 1" :to="{name: 'cabang-id-kasbesar', params: { id: cabang_id }}" class="nav-link">
                     <img src="/assets/svgs/ic-flag.svg" alt="">
                     Kas Besar
                 </NuxtLink>
-                <NuxtLink :to="{name: 'cabang-id-kaskecil', params: { id: cabang_id }}" class="nav-link">
+                <NuxtLink v-if="role === 1" :to="{name: 'cabang-id-kaskecil', params: { id: cabang_id }}" class="nav-link">
                     <img src="/assets/svgs/ic-flag.svg" alt="">
                     Kas Kecil
                 </NuxtLink>
-                <NuxtLink :to="{name: 'cabang-id-kasbank', params: { id: cabang_id }}" class="nav-link">
+                <NuxtLink v-if="role === 1" :to="{name: 'cabang-id-kasbank', params: { id: cabang_id }}" class="nav-link">
                     <img src="/assets/svgs/ic-box.svg" alt="">
                     Kas Bank
                 </NuxtLink>
-                <NuxtLink :to="{name: 'cabang-id-jurnalumum', params: { id: cabang_id }}" class="nav-link">
+                <NuxtLink v-if="role === 1" :to="{name: 'cabang-id-jurnalumum', params: { id: cabang_id }}" class="nav-link">
                     <img src="/assets/svgs/ic-document.svg" alt="">
                     Jurnal Umum
                 </NuxtLink>
             </div>
             <div class="flex flex-col gap-4">
                 <div class="text-sm text-grey">Others</div>
-                <NuxtLink :to="{name: 'cabang-id-cabang'}" class="nav-link">
+                <NuxtLink v-if="role === 1" :to="{name: 'cabang-id-cabang'}" class="nav-link">
                     <img src="/assets/svgs/ic-home.svg" alt="">
                     Cabang
+                </NuxtLink>
+                <NuxtLink v-if="role === 1" :to="{name: 'cabang-id-user'}" class="nav-link">
+                    <img src="/assets/svgs/ic-home.svg" alt="">
+                    User
                 </NuxtLink>
                 <button @click="logout" class="nav-link">
                     <img src="/assets/svgs/ic-signout.svg" alt="">

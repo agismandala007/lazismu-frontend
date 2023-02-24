@@ -56,13 +56,13 @@
                     </div>
                 </div>
             
-                <div class="card !gap-y-10 min-h-[200px]">
+                <!-- <div class="card !gap-y-10 min-h-[200px]">
                     <div class="items-center justify-between">
                         <div>
                             <doughnut :chartData="Ddata" :chartOptions="Doptions" style="height: 226px; width: 100%"/>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
         </section>
 
@@ -71,7 +71,7 @@
                 <!-- Documents -->
                 <div>
                     <!-- Section Header -->
-                    <div class="mb-[30px]">
+                    <!-- <div class="mb-[30px]">
                         <div class="items-center justify-between">
                             <div>
                                 <div class="text-xl font-medium text-dark">
@@ -85,7 +85,7 @@
                       <div class="bg-white md:min-h-[400px] w-[400px] flex">
                           <bar :chartData="chartData" :chartOptions="chartOptions"/>
                       </div>
-                    </div>
+                    </div> -->
                   </div>
 
                 <!-- History -->
@@ -95,7 +95,7 @@
                         <div class="flex items-center justify-between">
                             <div>
                                 <div class="text-xl font-medium text-dark">
-                                    History
+                                    Dana Masuk
                                 </div>
                                 <p class="text-grey">Track the flow</p>
                             </div>
@@ -120,59 +120,59 @@ import Doughnut from '@/components/chart/DougnutChart.vue';
 export default {
   layout: 'dashboard',
   components: { bar,LineChartGenerator, Doughnut },
-   data() {
-    return {
-    role : localStorage.getItem('role'),
-    cabang_id : localStorage.getItem('cabang_id'),
-      chartData: {
-        labels: [ 'January', 'February', 'March' ],
-        datasets: [ { data: [40, 20, 12] } ]
-      },
-      chartOptions: {
-        barPercentage: 0.5,
-        responsive: true,
-        maintainAspectRatio: false,
-        backgroundColor:['rgba(255, 99, 132, 0.2)','rgba(255, 159, 64, 0.2)',],
-        barThickness: 12,
-      },
-      Ddata: {
-        labels: ['January', 'February', 'March', 'April', 'May'],
-        datasets: [
-          {
-            label: 'Data One',
-            backgroundColor: [
-              '#15A5BE',
-              '#a91123',
-              '#172b4d',
-              '#fb6340',
-              '#a3c7c9',
-              '#3F3B61',
-            ],
-            data: [10, 40, 39, 80, 40],
-          },
-        ],
-      },
-      Doptions: {
-        borderRadius: 10,
-        cutout: '60%',
-        responsive: true,
-        maintainAspectRatio: false,
-        animation: {
-          animateRotate: false,
-        },
-        plugins: {
-          legend: {
-            position: 'bottom',
-          },
+  //  data() {
+  //   return {
+  //   role : localStorage.getItem('role'),
+  //   cabang_id : localStorage.getItem('cabang_id'),
+  //     chartData: {
+  //       labels: [ 'January', 'February', 'March' ],
+  //       datasets: [ { data: [40, 20, 12] } ]
+  //     },
+  //     chartOptions: {
+  //       barPercentage: 0.5,
+  //       responsive: true,
+  //       maintainAspectRatio: false,
+  //       backgroundColor:['rgba(255, 99, 132, 0.2)','rgba(255, 159, 64, 0.2)',],
+  //       barThickness: 12,
+  //     },
+  //     Ddata: {
+  //       labels: ['January', 'February', 'March', 'April', 'May'],
+  //       datasets: [
+  //         {
+  //           label: 'Data One',
+  //           backgroundColor: [
+  //             '#15A5BE',
+  //             '#a91123',
+  //             '#172b4d',
+  //             '#fb6340',
+  //             '#a3c7c9',
+  //             '#3F3B61',
+  //           ],
+  //           data: [10, 40, 39, 80, 40],
+  //         },
+  //       ],
+  //     },
+  //     Doptions: {
+  //       borderRadius: 10,
+  //       cutout: '60%',
+  //       responsive: true,
+  //       maintainAspectRatio: false,
+  //       animation: {
+  //         animateRotate: false,
+  //       },
+  //       plugins: {
+  //         legend: {
+  //           position: 'bottom',
+  //         },
           
-        },
-      },
+  //       },
+  //     },
 
-    }
-  },
-  mounted(){
-    console.log(this.role);
-    console.log(this.cabang_id);
-  }
+  //   }
+  // },
+  // mounted(){
+  //   console.log(this.role);
+  //   console.log(this.cabang_id);
+  // }
 }
 </script>

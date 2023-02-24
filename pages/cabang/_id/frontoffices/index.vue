@@ -67,7 +67,7 @@
             </div>
           </div>
         </div>
-        <div class="card !gap-y-10">
+        <!-- <div class="card !gap-y-10">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-grey">Data Belum Terverifikasi</p>
@@ -82,7 +82,7 @@
               <div class="text-[32px] font-bold text-dark mt-[6px]">12</div>
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
     </section>
 
@@ -190,12 +190,59 @@
                 <td v-else></td>
                 <td class="py-4 px-6">{{ item.tempatbayar }}</td>
                 <td class="py-4 px-6">{{ item.jumlah }}</td>
-                <td class="py-4 px-6 text-right">
-                  <a
-                    href="#"
-                    class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                    >Edit</a
+                <td class="py-4 px-6">
+                  <button
+                    id="dropdownMenuIconButton"
+                    data-dropdown-toggle="dropdownDots"
+                    class="inline-flex p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none"
+                    type="button"
+                    @click="toggleDropDown(item.id)"
                   >
+                    <svg
+                      class="w-6 h-6"
+                      aria-hidden="true"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
+                      ></path>
+                    </svg>
+                  </button>
+                  <!-- Dropdown menu -->
+                  <div
+                    v-show="isHidden"
+                    refs="drop"
+                    id="dropdownDots"
+                    class="bg-white rounded divide-y divide-gray-100 shadow absolute"
+                    :class="isHidden === item.id ? 'show' : 'hidden'"
+                  >
+                    <ul
+                      class="py-1 text-sm text-gray-700"
+                      aria-labelledby="dropdownMenuIconButton"
+                    >
+                      <li>
+                        <Nuxt-Link
+                          :to="{
+                            name: 'cabang-id-frontoffices-edit',
+                            params: { id: cabang_id, item: item.id },
+                          }"
+                          class="block py-2 px-4 hover:bg-gray-100"
+                          >Edit
+                        </Nuxt-Link>
+                      </li>
+                      <li>
+                        <button
+                          href="#"
+                          class="block py-2 px-4 hover:bg-gray-100"
+                          @click="deleteFrontoffice(item, index)"
+                        >
+                          Delete
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -278,7 +325,11 @@ export default {
       keywords: null,
       now: null,
       pagenow: 1,
-      frontoffice: {},
+      frontoffice: {
+        
+      },
+      isHidden: false,
+      cabang_id: JSON.parse(localStorage.getItem('cabang_id')),
     }
   },
   watch: {
@@ -294,9 +345,8 @@ export default {
         params: {
           limit: 10,
           page: this.pagenow,
-          name: this.keywords,
-          nobuktipenerima: this.keywords,
-          
+          search: this.keywords,
+          cabang_id: this.cabang_id,
         },
       })
       .then((response) => {
@@ -311,18 +361,25 @@ export default {
       this.$nuxt.refresh()
     },  
     fetch1() {
-      this.$axios.get('/frontoffice', {
-      params: {
-        limit: 10,
-        page: this.pagenow,
-        name: this.keywords,
-        nobuktipenerima: this.keywords,
-
-      },
-      }).then(response => this.frontoffice = response.result.data)
-      .catch(error => {});
       this.$nuxt.refresh()
-    }
+    },
+    //this for delete
+    async deleteFrontoffice(item, index) {
+      //delete data post by ID
+      await this.$axios.delete(`/frontoffice/${item.id}`).then(() => {
+        //remove item array by index
+        this.frontoffice.data.result.data.splice(index, 1)
+      })
+    },
+    //Method for dots three
+    toggleDropDown(kode) {
+      if (this.isHidden === false) {
+        this.isHidden = kode
+        this.$emit('change', this.isHidden)
+      } else {
+        this.isHidden = false
+      }
+    },
     
   },
 }
