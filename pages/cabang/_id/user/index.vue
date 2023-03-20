@@ -23,20 +23,18 @@
         </a>
         <div class="text-[32px] font-semibold text-dark">Users Manajement</div>
       </div>
-      <div class="flex items-center gap-4">
-      </div>
+      <div class="flex items-center gap-4"></div>
     </section>
 
-    <section class="pt-[50px]">
-    </section>
+    <section class="pt-[50px]"></section>
 
     <section class="pt-[50px]">
       <!-- Section Header -->
       <div class="mb-[30px]">
         <div class="flex items-center justify-between gap-6">
           <div>
-            <div class="text-xl font-medium text-dark">Coa Debit</div>
-            <p class="text-grey">Debit</p>
+            <div class="text-xl font-medium text-dark">User</div>
+            <p class="text-grey">Pengaturan user</p>
           </div>
         </div>
       </div>
@@ -91,9 +89,10 @@
               <th scope="col" class="p-2">
                 <div class="flex items-center">No.</div>
               </th>
-              <th scope="col" class="py-3 px-6">Nama Akun</th>
-              <th scope="col" class="py-3 px-6">Kode</th>
-              <th scope="col" class="py-3 px-6">Laporan</th>
+              <th scope="col" class="py-3 px-6">Nama</th>
+              <th scope="col" class="py-3 px-6">Email</th>
+              <th scope="col" class="py-3 px-6">Role</th>
+              <th scope="col" class="py-3 px-6">Cabang</th>
               <th scope="col" class="py-3 px-6">
                 <div class="flex items-center">Aksi</div>
               </th>
@@ -104,26 +103,30 @@
             <tr
               class="bg-white border-b text-gray-700"
               v-else
-              v-for="(item, index) in coadebit.data.result.data"
+              v-for="(item, index) in user.data.result.data"
               :key="index"
             >
               <td class="p-4 w-4">
                 <div class="flex items-center">
-                  {{ coadebit.data.result.current_page * 10 - 10 + index + 1 }}
+                  {{ user.data.result.current_page * 10 - 10 + index + 1 }}
                 </div>
               </td>
               <td scope="row" class="py-4 px-6 font-medium text-gray-900">
                 {{ item.name }}
               </td>
-              <td class="py-4 px-6">{{ item.kode }}</td>
-              <td class="py-4 px-6">{{ item.laporan }}</td>
+              <td class="py-4 px-6">{{ item.email }}</td>
+              <td class="py-4 px-6">
+                {{ rolename[item.role - 1] }}
+              </td>
+
+              <td class="py-4 px-6">{{ item.cabang.name }}</td>
               <td class="py-4 px-6">
                 <button
                   id="dropdownMenuIconButton"
                   data-dropdown-toggle="dropdownDots"
                   class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none"
                   type="button"
-                  @click="toggleDropDown(item.kode)"
+                  @click="toggleDropDown(item.id)"
                 >
                   <svg
                     class="w-6 h-6"
@@ -144,7 +147,7 @@
                   refs="drop"
                   id="dropdownDots"
                   class="bg-white rounded divide-y divide-gray-100 shadow absolute"
-                  :class="isHidden === item.kode ? 'show' : 'hidden'"
+                  :class="isHidden === item.id ? 'show' : 'hidden'"
                 >
                   <ul
                     class="py-1 text-sm text-gray-700"
@@ -164,10 +167,9 @@
                       <button
                         href="#"
                         class="block py-2 px-4 hover:bg-gray-100"
-                        @click="deletePost(item,index)"
-                        
+                        @click="deletePost(item, index)"
                       >
-                      Delete
+                        Delete
                       </button>
                     </li>
                   </ul>
@@ -194,16 +196,16 @@
             <span class="font-semibold text-gray-900">1-10</span>
             of
             <span class="font-semibold text-gray-900">{{
-              coadebit.data.result.last_page
+              user.data.result.last_page
             }}</span></span
           >
           <ul class="inline-flex items-center -space-x-px">
             <li>
               <button
-                :value="coadebit.data.result.current_page - 1"
+                :value="user.data.result.current_page - 1"
                 @click="updatePage"
                 class="block py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                :disabled="coadebit.data.result.current_page == 1"
+                :disabled="user.data.result.current_page == 1"
               >
                 <
               </button>
@@ -212,7 +214,7 @@
 
             <li
               v-else
-              v-for="(ada, index) in coadebit.data.result.links"
+              v-for="(ada, index) in user.data.result.links"
               :key="index"
             >
               <button
@@ -232,7 +234,7 @@
                 :value="nextUrl"
                 @click="updatePage"
                 class="block py-2 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                :disabled="pagenow == coadebit.data.result.last_page"
+                :disabled="pagenow == user.data.result.last_page"
               >
                 >
               </button>
@@ -257,21 +259,11 @@ export default {
       cabang_id: JSON.parse(localStorage.getItem('cabang_id')),
       nextUrl: 2,
       prevUrl: null,
-      nextUrl2: 2,
-      prevUrl2: null,
       keywords: null,
-      keywords2: null,
       pagenow: null,
-      pagenow2: null,
-      coadebit: [],
-      coakredit: [],
-      kode: null,
       isHidden: false,
-      config: {
-        handler: this.out,
-        middleware: this.middleware,
-        events: ['dblclick', 'click'],
-      },
+      rolename: ['Admin', 'front Office', 'Back Office'],
+      user: {},
     }
   },
   watch: {
@@ -279,29 +271,16 @@ export default {
       this.fetch1()
       fetchOnServer: false
     },
-    keywords2(after, before) {
-      this.fetch2()
-      fetchOnServer: false
-    },
   },
   mounted() {
     console.log(this.isHidden)
   },
   async fetch() {
-    this.coadebit = await this.$axios.get('/coadebit', {
+    this.user = await this.$axios.get('/userall', {
       params: {
-        name: this.keywords,
+        search: this.keywords,
         limit: 10,
         page: this.pagenow,
-        cabang_id: this.cabang_id,
-      },
-    })
-    this.coakredit = await this.$axios.get('/coakredit', {
-      params: {
-        name: this.keywords2,
-        limit: 10,
-        page: this.pagenow2,
-        cabang_id: this.cabang_id,
       },
     })
   },
@@ -318,14 +297,14 @@ export default {
     },
     fetch1() {
       this.$axios
-        .get('/coadebit', {
+        .get('/user', {
           params: {
             limit: 10,
             page: this.pagenow,
             name: this.keywords,
           },
         })
-        .then((response) => (this.coadebit = response.result.data))
+        .then((response) => (this.user = response.result.data))
         .catch((error) => {})
       this.$nuxt.refresh()
     },
@@ -343,14 +322,14 @@ export default {
       this.$nuxt.refresh()
     },
 
-    async deletePost(item,index) {
+    async deletePost(item, index) {
       //delete data post by ID
-      await this.$axios.delete(`/coadebit/${item.id}`).then(() => {
+      await this.$axios.delete(`/user/${item.id}`).then(() => {
         //remove item array by index
-        this.coadebit.data.result.data.splice(index, 1)
+        this.user.data.result.data.splice(index, 1)
       })
     },
-    async deleteKredit(item,index) {
+    async deleteKredit(item, index) {
       //delete data post by ID
       await this.$axios.delete(`/coakredit/${item.id}`).then(() => {
         //remove item array by index
@@ -359,9 +338,9 @@ export default {
     },
 
     //Method for dots three
-    toggleDropDown(kode) {
+    toggleDropDown(id) {
       if (this.isHidden === false) {
-        this.isHidden = kode
+        this.isHidden = id
         this.$emit('change', this.isHidden)
       } else {
         this.isHidden = false

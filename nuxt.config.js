@@ -21,30 +21,23 @@ export default {
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
-  css: [
-    '@/assets/css/main.css',
-  ],
+  css: ['@/assets/css/main.css'],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: [
-    { src: "@/plugins/vClickOutside", ssr: false }
-  ],
-
+  plugins: [{ src: '@/plugins/vClickOutside', ssr: false }],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
 
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
-  buildModules: [
-    '@nuxt/postcss8',
-    '@nuxtjs/dotenv',
-  ],
+  buildModules: ['@nuxt/postcss8', '@nuxtjs/dotenv'],
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
-    '@nuxtjs/auth-next'
+    '@nuxtjs/auth-next',
+    'vue-scrollto/nuxt',
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
@@ -59,19 +52,20 @@ export default {
           property: 'result.access_token',
           global: true,
           required: true,
-          type: 'Bearer'
+          maxAge: 3600,
+          type: 'Bearer',
         },
         user: {
           property: 'result',
-          autoFetch: true
+          autoFetch: true,
         },
         endpoints: {
           login: { url: '/login', method: 'post' },
           logout: { url: '/logout', method: 'post' },
-          user: { url: '/user', method: 'get' }
-        }
-      }
-    }
+          user: { url: '/user', method: 'get' },
+        },
+      },
+    },
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build

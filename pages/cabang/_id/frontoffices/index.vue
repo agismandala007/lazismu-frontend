@@ -1,7 +1,6 @@
 <template>
   <div class="lg:pr-[70px] py-[50px] lg:ml-[320px] xl:ml-[365px] px-4 lg:pl-0">
     <!-- Top Section -->
-    <!-- Top Section -->
     <section
       class="flex flex-col flex-wrap justify-between gap-6 md:items-center md:flex-row"
     >
@@ -24,21 +23,33 @@
         </a>
         <div class="text-[32px] font-semibold text-dark">Front Offices</div>
       </div>
-      <div class="flex items-center gap-4">
-        <form class="shrink md:w-[516px] w-full">
+      <div class="flex items-center">
+        <div class="relative">
           <input
-            type="text"
-            name="uraiantrasaksi"
-            id=""
-            class="input-field !outline-none !border-none italic form-icon-search ring-indigo-200 focus:ring-2 transition-all duration-300 w-full"
-            placeholder="Search people, team, project"
+            name="start"
+            type="date"
+            v-model="from"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
           />
-        </form>
+        </div>
+
+        <span class="mx-4 text-gray-500">to</span>
+        <div class="relative mr-4">
+          <input
+            v-model="to"
+            name="end"
+            type="date"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
+            placeholder="Select date end"
+          />
+        </div>
+
         <a
-          href="#"
-          class="flex-none w-[46px] h-[46px] bg-white rounded-full p-[11px] relative notification-dot"
+          download=""
+          @click="exportExcel()"
+          class="button cursor-pointer py-3 px-3 bg-green-400 rounded rounded-lg"
         >
-          <img src="/assets/svgs/ic-bell.svg" alt="" />
+          Export to Excel
         </a>
       </div>
     </section>
@@ -61,8 +72,8 @@
             <div>
               <p class="text-grey">Pemasukan</p>
               <div class="text-[32px] font-bold text-dark mt-[6px]">
-              <p v-if="$fetchState.pending">Fetching roles...</p>
-              Rp. {{ pemasukan }}
+                <p v-if="$fetchState.pending">Fetching roles...</p>
+                Rp. {{ pemasukan }}
               </div>
             </div>
           </div>
@@ -134,7 +145,10 @@
                   />
                 </div>
                 <NuxtLink
-                  :to="{ name: 'cabang-id-frontoffices-create' }"
+                  :to="{
+                    name: 'cabang-id-frontoffices-create',
+                    params: { id: cabang_id },
+                  }"
                   class="btn-sm px-4 py-2 rounded-lg bg-orange-400 text-sm text-white"
                 >
                   Tambah
@@ -169,7 +183,6 @@
                 v-for="(item, index) in frontoffice.data.result.data"
                 :key="index"
               >
-              
                 <th scope="row" class="py-4 px-6 font-medium text-gray-900">
                   {{
                     frontoffice.data.result.current_page * 10 - 10 + index + 1
@@ -268,10 +281,10 @@
           <ul class="inline-flex items-center -space-x-px">
             <li>
               <button
-                :value="frontoffice.data.result.current_page-1" 
+                :value="frontoffice.data.result.current_page - 1"
                 @click="updatePage"
                 class="relative block py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                :disabled ="frontoffice.data.result.current_page==1"
+                :disabled="frontoffice.data.result.current_page == 1"
               >
                 <
               </button>
@@ -300,7 +313,7 @@
                 :value="nextUrl"
                 @click="updatePage"
                 class="block py-2 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
-                :disabled ="pagenow == frontoffice.data.result.last_page"
+                :disabled="pagenow == frontoffice.data.result.last_page"
               >
                 >
               </button>
@@ -319,17 +332,17 @@ export default {
   data() {
     return {
       nextUrl: 2,
-      jumlahtot:[],
+      jumlahtot: [],
       pemasukan: null,
       prevUrl: null,
       keywords: null,
       now: null,
       pagenow: 1,
-      frontoffice: {
-        
-      },
+      frontoffice: {},
       isHidden: false,
       cabang_id: JSON.parse(localStorage.getItem('cabang_id')),
+      from: '',
+      to: '',
     }
   },
   watch: {
@@ -337,8 +350,12 @@ export default {
       this.fetch1()
       fetchOnServer: false
     },
+    to(after, before) {
+      this.fetch1()
+      fetchOnServer: false
+    },
   },
-  
+
   async fetch() {
     await this.$axios
       .get('/frontoffice', {
@@ -357,9 +374,9 @@ export default {
   methods: {
     updatePage(event) {
       this.pagenow = parseInt(event.target.value)
-      this.nextUrl = 1+parseInt(event.target.value)
+      this.nextUrl = 1 + parseInt(event.target.value)
       this.$nuxt.refresh()
-    },  
+    },
     fetch1() {
       this.$nuxt.refresh()
     },
@@ -371,6 +388,7 @@ export default {
         this.frontoffice.data.result.data.splice(index, 1)
       })
     },
+
     //Method for dots three
     toggleDropDown(kode) {
       if (this.isHidden === false) {
@@ -380,7 +398,42 @@ export default {
         this.isHidden = false
       }
     },
-    
+  },
+
+  //Method untuk export frontoffice
+  async exportExcel() {
+    this.loading = true
+    let newWindow = window.open()
+    await this.$axios
+      .get('/frontoffice/export', {
+        responseType: 'blob',
+      })
+      .then((response) => {
+        this.loading = false
+        // newWindow.location = 'blob:http://lazismu-backend.test/api/kasbesar/export'
+
+        const href = URL.createObjectURL(response.data)
+
+        //     console.log(href);
+
+        // create "a" HTML element with href to file & click
+        const link = document.createElement('a')
+        link.href = href
+        link.setAttribute('download', 'frontoffice.xlsx') //or any other extension
+        link.setAttribute('target', '_blank') //or any other extension
+        document.body.appendChild(link)
+        link.click()
+
+        // clean up "a" element & remove ObjectURL
+        document.body.removeChild(link)
+        URL.revokeObjectURL(href)
+      })
+
+    //   const response = await this.$http
+    //     .get('http://lazismu-backend.test/api/kasbesar/export')
+    //     .then((response) => {
+    //       fileDownload(response.data, 'pedoman.xlsx')
+    //     })
   },
 }
 </script>

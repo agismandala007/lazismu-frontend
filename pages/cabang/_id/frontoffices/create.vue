@@ -6,7 +6,7 @@
     </p>
     <form class="w-full card-baru" @submit.prevent="createFrontoffice">
       <div class="grid grid-cols-3 gap-4">
-        <div class="form-group ">
+        <div class="form-group">
           <label for="" class="text-grey">Tanggal</label>
           <input
             type="date"
@@ -16,28 +16,35 @@
         </div>
         <div class="form-group col-span-2">
           <label for="" class="text-grey">No Bukti Penerima</label>
-          <input type="text" class="input-field2" v-model="frontoffice.nobuktipenerima" />
+          <input
+            type="text"
+            class="input-field2"
+            v-model="frontoffice.nobuktipenerima"
+          />
         </div>
       </div>
       <div class="form-group">
         <label for="" class="text-grey">Uraian Transaksi</label>
-        <input
-          type="text"
-          class="input-field2"
-          v-model="frontoffice.name"
-        />
+        <input type="text" class="input-field2" v-model="frontoffice.name" />
       </div>
-      
+
       <div class="grid grid-cols-2 gap-4">
         <div class="form-group">
           <label for="" class="text-grey">Muzakki</label>
-          <input type="text" class="input-field2" v-model="frontoffice.penyetor" />
+          <input
+            type="text"
+            class="input-field2"
+            v-model="frontoffice.penyetor"
+          />
         </div>
         <div class="form-group">
           <label for="" class="text-grey">Penerima</label>
-          <input type="text" class="input-field2" v-model="frontoffice.penerima" />
+          <input
+            type="text"
+            class="input-field2"
+            v-model="frontoffice.penerima"
+          />
         </div>
-
       </div>
       <div class="form-group">
         <label for="" class="text-grey">Pilih Akun Debit</label>
@@ -48,8 +55,12 @@
           name="debit"
           id=""
           class="appearance-none input-field2 form-icon-chevron_down w-9/12"
-        >             
-          <option :value="item.id" v-for="item in debit.data.result.data" >
+        >
+          <option
+            :value="item.id"
+            v-for="item in debit.data.result.data"
+            :key="item"
+          >
             {{ item.name }}
           </option>
         </select>
@@ -63,8 +74,12 @@
           name="kredit"
           id=""
           class="appearance-none input-field2 form-icon-chevron_down w-9/12"
-        > 
-          <option :value="item.id" v-for="item in kredit.data.result.data">
+        >
+          <option
+            :value="item.id"
+            v-for="item in kredit.data.result.data"
+            :key="item"
+          >
             {{ item.name }}
           </option>
         </select>
@@ -72,17 +87,24 @@
       <div class="grid grid-cols-3 gap-4">
         <div class="form-group">
           <label for="" class="text-grey">Jumlah</label>
-          <input type="text" class="input-field2" v-model="frontoffice.jumlah" />
+          <input
+            type="text"
+            class="input-field2"
+            v-model="frontoffice.jumlah"
+          />
         </div>
         <div class="form-group">
           <label for="" class="text-grey">Tempat Bayar</label>
-          <input type="text" class="input-field2" v-model="frontoffice.tempatbayar" />
+          <input
+            type="text"
+            class="input-field2"
+            v-model="frontoffice.tempatbayar"
+          />
         </div>
         <div class="form-group">
           <label for="" class="text-grey">Ref</label>
           <input type="text" class="input-field2" v-model="frontoffice.ref" />
         </div>
-
       </div>
 
       <button type="submit" class="w-full btn btn-lazismu mt-[14px]">
@@ -111,32 +133,33 @@ export default {
         tempatbayar: '',
         coadebit_id: '',
         coakredit_id: '',
-        company_id: this.$route.params.id,
-        
+        cabang_id: this.$route.params.id,
       },
+      cabang_id: this.$route.params.id,
     }
   },
   async fetch() {
-    this.debit = await this.$axios.get('/coadebit', {
+    ;(this.debit = await this.$axios.get('/coadebit', {
       params: {
-        limit: 100
+        limit: 100,
+        cabang_id: this.cabang_id,
       },
-    }),
-    this.kredit = await this.$axios.get('/coakredit', {
-      params: {
-          // company_id: this.$route.params.id,
-          limit: 100
-      },
-    })
+    })),
+      (this.kredit = await this.$axios.get('/coakredit', {
+        params: {
+          limit: 100,
+          cabang_id: this.cabang_id,
+        },
+      }))
   },
   methods: {
     async createFrontoffice() {
       try {
         //send registration data to server
         let response = await this.$axios.post('/frontoffice', this.frontoffice)
-        
+
         //Redirect to my frontoffice page
-        this.$router.push({name: 'frontoffices'})
+        this.$router.push({ name: 'frontoffices' })
 
         console.log(response)
       } catch (error) {

@@ -1,9 +1,84 @@
 <template>
   <div class="lg:pr-[70px] py-[50px] lg:ml-[320px] xl:ml-[365px] px-4 lg:pl-0">
     <!-- Top Section -->
+    <div class="modal">
+      <div
+        v-if="toogleModal"
+        id="popup-modal"
+        tabindex="-1"
+        class="fixed overflow-x-hidden overflow-y-auto inset-0 z-50 w-full h-screen flex items-center justify-center bg-semi-75"
+      >
+        <div class="relative w-full h-full max-w-md md:h-auto">
+          <div class="relative bg-white rounded-lg shadow">
+            <button
+              @click="toogleModal = false"
+              type="button"
+              class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
+              data-modal-hide="popup-modal"
+            >
+              <svg
+                aria-hidden="true"
+                class="w-5 h-5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                ></path>
+              </svg>
+              <span class="sr-only">Close modal</span>
+            </button>
+            <div class="p-6 text-center">
+              <svg
+                aria-hidden="true"
+                class="mx-auto mb-4 text-gray-400 w-14 h-14"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+              <h3 class="mb-5 text-lg font-normal text-gray-500">
+                {{ msg }}
+              </h3>
+              <button
+                @click="deleteKasbesar(data1, data2), (toogleModal = false)"
+                data-modal-hide="popup-modal"
+                type="button"
+                class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2"
+              >
+                Yes, I'm sure
+              </button>
+              <button
+                @click="toogleModal = false"
+                data-modal-hide="popup-modal"
+                type="button"
+                class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+              >
+                Tidak
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        v-if="toogleModal"
+        class="fixed inset-0 z-40 opacity-25 bg-black"
+      ></div>
+    </div>
     <section
       class="flex flex-col flex-wrap justify-between gap-6 md:items-center md:flex-row"
     >
+      <!-- Responsive class jika berbentuk lebih kecil -->
       <div class="flex items-center justify-between gap-4">
         <a href="#" id="toggleOpenSidebar" class="lg:hidden">
           <svg
@@ -43,11 +118,10 @@
             placeholder="Select date end"
           />
         </div>
-      
-      
+
         <a
           download=""
-          @click="exportExcel"
+          @click="exportExcel()"
           class="button cursor-pointer py-4 px-3 bg-green-400 rounded rounded-lg"
         >
           Export to Excel
@@ -78,7 +152,7 @@
             </div>
           </div>
         </div>
-        <!-- <div class="card !gap-y-10">
+        <div class="card !gap-y-10">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-grey">Pengeluaran</p>
@@ -87,7 +161,7 @@
               </div>
             </div>
           </div>
-        </div> -->
+        </div>
       </div>
     </section>
     <!-- Top Section -->
@@ -261,8 +335,14 @@
                         <button
                           href="#"
                           class="block py-2 px-4 hover:bg-gray-100"
-                          @click="deleteKasbesar(item, index)"
+                          @click="
+                            ;(toogleModal = !toogleModal),
+                              (msg = 'Delete ' + item.name),
+                              (data1 = item),
+                              (data2 = index)
+                          "
                         >
+                          <!-- deleteKasbesar(item, index) -->
                           Delete
                         </button>
                       </li>
@@ -351,8 +431,13 @@ export default {
       keywords: null,
       pagenow: null,
       kasbesar: {},
+      msg: 'hahaha',
       from: '',
       to: '',
+      activeGrade: null,
+      data1: null,
+      data2: null,
+      toogleModal: false,
     }
   },
   watch: {
@@ -378,6 +463,14 @@ export default {
     })
   },
   methods: {
+    showModal(grade) {
+      this.activeGrade = grade
+
+      this.$nextTick(() => {
+        this.$bvModal.show('modal-delete-grade')
+      })
+    },
+
     updatePage(event) {
       this.pagenow = parseInt(event.target.value)
       this.$nuxt.refresh()

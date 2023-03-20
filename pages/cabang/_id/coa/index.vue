@@ -1,6 +1,13 @@
 <template>
   <div class="lg:pr-[70px] py-[50px] lg:ml-[320px] xl:ml-[365px] px-4 lg:pl-0">
     <!-- Top Section -->
+    <Modal
+      :onClick="consoleClick"
+      v-show="modal"
+      :toogleModal="modal"
+      :close="closeModal"
+      >Hapus akun ?</Modal
+    >
     <!-- Top Section -->
 
     <section
@@ -23,25 +30,11 @@
             ></path>
           </svg>
         </a>
-        <div class="text-[32px] font-semibold text-dark">Chart of Account</div>
+        <div class="text-[32px] font-semibold text-dark">
+          Kode Akun Akutansi
+        </div>
       </div>
-      <div class="flex items-center gap-4">
-        <form class="shrink md:w-[516px] w-full">
-          <input
-            type="text"
-            name=""
-            id=""
-            class="input-field !outline-none !border-none italic form-icon-search ring-indigo-200 focus:ring-2 transition-all duration-300 w-full"
-            placeholder="Search people, team, project"
-          />
-        </form>
-        <a
-          href="#"
-          class="flex-none w-[46px] h-[46px] bg-white rounded-full p-[11px] relative notification-dot"
-        >
-          <img src="/assets/svgs/ic-bell.svg" alt="" />
-        </a>
-      </div>
+      <div class="flex items-center gap-4"></div>
     </section>
 
     <section class="pt-[50px]">
@@ -51,28 +44,24 @@
           class="flex flex-col justify-between gap-6 sm:items-center sm:flex-row"
         >
           <div>
-            <div class="text-xl font-medium text-dark">Statistics</div>
+            <div class="text-xl font-medium text-dark">Jumlah Akun</div>
           </div>
         </div>
       </div>
 
-      <p v-if="$fetchState.pending">Data Loading</p>
-      <div v-else class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:gap-11">
+      <p v-if="$fetchState.pending">Tunggu Sebentar ...</p>
+      <div v-else class="grid gap-6 sm:grid-cols-2 md:grid-cols-2 lg:gap-11">
         <div class="card !gap-y-10">
           <div class="flex items-center justify-between">
             <div>
-              <p class="text-grey">Coa Debit</p>
+              <p class="text-grey">CoA Debit</p>
 
               <div class="text-[32px] font-bold text-dark mt-[6px]">
                 {{ coadebit.data.result.total }} Akun
               </div>
             </div>
-          </div>
-        </div>
-        <div class="card !gap-y-10">
-          <div class="flex items-center justify-between">
             <div>
-              <p class="text-grey">Coa Kredit</p>
+              <p class="text-grey">CoA Kredit</p>
               <div class="text-[32px] font-bold text-dark mt-[6px]">
                 {{ coakredit.data.result.total }} Akun
               </div>
@@ -82,7 +71,7 @@
       </div>
     </section>
 
-    <section class="pt-[50px]">
+    <section class="pt-[50px] mt-10">
       <!-- Section Header -->
       <div class="mb-[30px]">
         <div class="flex items-center justify-between gap-6">
@@ -216,10 +205,9 @@
                       <button
                         href="#"
                         class="block py-2 px-4 hover:bg-gray-100"
-                        @click="deletePost(item,index)"
-                        
+                        @click="deletePost(item, index)"
                       >
-                      Delete
+                        Delete
                       </button>
                     </li>
                   </ul>
@@ -293,7 +281,7 @@
         </nav>
       </div>
     </section>
-    <section class="pt-[50px]">
+    <section id="top" class="pt-[50px]">
       <!-- Section Header -->
       <div class="mb-[30px]">
         <div class="flex items-center justify-between gap-6">
@@ -424,7 +412,7 @@
                       <button
                         href="#"
                         class="block py-2 px-4 hover:bg-gray-100"
-                        @click="deleteKredit(items, index)"
+                        @click="modal = !modal"
                       >
                         Delete
                       </button>
@@ -498,6 +486,7 @@
 
 <script>
 import vClickOutside from 'v-click-outside'
+import Modal from '@/components/Modal.vue'
 export default {
   layout: 'dashboard',
   middleware: 'auth',
@@ -507,6 +496,7 @@ export default {
   data() {
     return {
       cabang_id: JSON.parse(localStorage.getItem('cabang_id')),
+      modal: false,
       nextUrl: 2,
       prevUrl: null,
       nextUrl2: 2,
@@ -526,6 +516,7 @@ export default {
       },
     }
   },
+
   watch: {
     keywords(after, before) {
       this.fetch1()
@@ -535,8 +526,21 @@ export default {
       this.fetch2()
       fetchOnServer: false
     },
+    pagenow2(after, before) {
+      this.$nextTick(function () {
+        // DOM updated
+        let elmnt = document.getElementById('top')
+        elmnt.scrollIntoView(false)
+        console.log('terscroll')
+      })
+    },
   },
+  components: { Modal },
   mounted() {
+    window.scrollTo(
+      0,
+      document.body.scrollHeight || document.documentElement.scrollHeight
+    )
     console.log(this.isHidden)
   },
   async fetch() {
@@ -565,8 +569,8 @@ export default {
     },
     updatePage2(event) {
       this.pagenow2 = parseInt(event.target.value)
-      this.$nuxt.refresh()
       this.nextUrl2 = 1 + parseInt(event.target.value)
+      this.$nuxt.refresh()
     },
     fetch1() {
       this.$axios
@@ -595,19 +599,27 @@ export default {
       this.$nuxt.refresh()
     },
 
-    async deletePost(item,index) {
+    async deletePost(item, index) {
       //delete data post by ID
       await this.$axios.delete(`/coadebit/${item.id}`).then(() => {
         //remove item array by index
         this.coadebit.data.result.data.splice(index, 1)
       })
     },
-    async deleteKredit(item,index) {
+    async deleteKredit(item, index) {
       //delete data post by ID
       await this.$axios.delete(`/coakredit/${item.id}`).then(() => {
         //remove item array by index
         this.coakredit.data.result.data.splice(index, 1)
       })
+    },
+
+    consoleClick() {
+      console.log('ter klik konsole modal')
+      this.modal = false
+    },
+    closeModal() {
+      this.modal = false
     },
 
     //Method for dots three
