@@ -21,9 +21,17 @@
         >
           Pemasukan
         </button>
-        {{ inputType }}
+        
       </div>
       <form class="w-full card-baru" @submit.prevent="createKasbesar">
+        <p v-if="listerror" class="m-3">
+        <b>Tolong Di Cek Kembali :</b>
+        <ul class="list-disc">
+          <li v-for="error in errors" :key="error[0]" class="text-red-500">
+          {{ error[0] }}
+          </li>
+        </ul>
+      </p>
         <div class="grid grid-cols-3 gap-4">
           <div class="form-group">
             <label for="" class="text-grey">Tanggal</label>
@@ -144,19 +152,24 @@ export default {
       },
       cabang_id: this.$route.params.id,
       inputType: false,
+      cabang: [],
+      listerror: false,
+      errors: [],
     }
   },
   async fetch() {
-    ;(this.debit = await this.$axios.get('/coadebit', {
+    ;(this.debit = await this.$axios.get('/coa', {
       params: {
         limit: 100,
         cabang_id: this.cabang_id,
+        tipe: false,
       },
     })),
-      (this.kredit = await this.$axios.get('/coakredit', {
+      (this.kredit = await this.$axios.get('/coa', {
         params: {
           limit: 100,
           cabang_id: this.cabang_id,
+          tipe: 1,
         },
       }))
   },
@@ -185,16 +198,18 @@ export default {
     async createKasbesar() {
       try {
         //send registration data to server
-        // if ((this.inputType = true)) {
-        //   this.kasbesar.jumlah = -this.kasbesar.jumlah
-        // }
-
         let response = await this.$axios.post('/kasbesar', this.kasbesar)
         //Redirect to my kasbesar page
-        this.$router.push({ name: 'cabang-id-kasbesar' })
+        this.$router.push({
+          name: 'cabang-id-kasbesar',
+          params: {
+            id: this.cabang_id,
+          },
+        })
         console.log(response)
       } catch (error) {
-        console.log(error)
+        this.errors = error.response.data.errors
+        this.listerror = true
       }
     },
   },

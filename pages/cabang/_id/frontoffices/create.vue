@@ -2,9 +2,17 @@
   <section class="flex flex-col items-center justify-center px-4 mb-8">
     <div class="text-[24px] font-semibold text-dark">Tambah Data</div>
     <p class="mt-2 text-base leading-7 text-center mb-[50px] text-grey">
-      Kredit<i>(Chart of Account)</i> <br />
+      Front Office <br />
     </p>
     <form class="w-full card-baru" @submit.prevent="createFrontoffice">
+      <p v-if="listerror" class="m-3">
+        <b>Tolong Di Cek Kembali :</b>
+        <ul class="list-disc">
+          <li v-for="error in errors" :key="error[0]" class="text-red-500">
+          {{ error[0] }}
+          </li>
+        </ul>
+      </p>
       <div class="grid grid-cols-3 gap-4">
         <div class="form-group">
           <label for="" class="text-grey">Tanggal</label>
@@ -135,20 +143,24 @@ export default {
         coakredit_id: '',
         cabang_id: this.$route.params.id,
       },
+      listerror: false,
+      errors: [],
       cabang_id: this.$route.params.id,
     }
   },
   async fetch() {
-    ;(this.debit = await this.$axios.get('/coadebit', {
+    ;(this.debit = await this.$axios.get('/coa', {
       params: {
-        limit: 100,
+        limit: 120,
         cabang_id: this.cabang_id,
+        tipe: false,
       },
     })),
-      (this.kredit = await this.$axios.get('/coakredit', {
+      (this.kredit = await this.$axios.get('/coa', {
         params: {
-          limit: 100,
+          limit: 120,
           cabang_id: this.cabang_id,
+          tipe: 1,
         },
       }))
   },
@@ -159,11 +171,17 @@ export default {
         let response = await this.$axios.post('/frontoffice', this.frontoffice)
 
         //Redirect to my frontoffice page
-        this.$router.push({ name: 'frontoffices' })
+        this.$router.push({ 
+          name: 'cabang-id-frontoffices',
+          params: {
+            id: this.cabang_id,
+          }, 
+        })
 
         console.log(response)
       } catch (error) {
-        console.log(error)
+        this.errors = error.response.data.errors
+        this.listerror = true
       }
     },
   },

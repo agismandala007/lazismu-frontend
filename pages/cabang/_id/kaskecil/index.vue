@@ -1,12 +1,34 @@
 <template>
-  <div class="lg:pr-[70px] py-[50px] lg:ml-[320px] xl:ml-[365px] px-4 lg:pl-0">
+  <div
+    class="lg:pr-[70px] py-[50px] lg:ml-[320px] px-4 lg:pl-0"
+    :class="sidebar ? 'xl:ml-[365px]' : 'xl:ml-[65px]'"
+  >
     <!-- Top Section -->
+    <Modal
+      :onClick="deletePost"
+      v-show="modal"
+      :toogleModal="modal"
+      :close="closeModal"
+      :wrongaction="hapus"
+      >Hapus uraian transaksi
+      <b class="text-red-700"
+        ><i>{{ msg }}</i></b
+      ></Modal
+    >
+    <Modal
+      :onClick="exportExcel"
+      v-show="modalExport"
+      :toogleModal="modalExport"
+      :close="closeModal"
+      :action="upload"
+      >Export dalam bentuk Excel ?</Modal
+    >
     <!-- Top Section -->
     <section
       class="flex flex-col flex-wrap justify-between gap-6 md:items-center md:flex-row"
     >
       <div class="flex items-center justify-between gap-4">
-        <a href="#" id="toggleOpenSidebar" class="lg:hidden">
+        <a href="#" id="toggleOpenSidebar" @click="toggleSidebar">
           <svg
             class="w-6 h-6 text-dark"
             fill="none"
@@ -24,22 +46,11 @@
         </a>
         <div class="text-[32px] font-semibold text-dark">Kas Kecil</div>
       </div>
-      <div class="flex items-center gap-4">
-        <form class="shrink md:w-[516px] w-full">
-          <input
-            type="text"
-            name="uraiantrasaksi"
-            id=""
-            class="input-field !outline-none !border-none italic form-icon-search ring-indigo-200 focus:ring-2 transition-all duration-300 w-full"
-            placeholder="Search people, team, project"
-          />
-        </form>
-        <a
-          href="#"
-          class="flex-none w-[46px] h-[46px] bg-white rounded-full p-[11px] relative notification-dot"
-        >
-          <img src="/assets/svgs/ic-bell.svg" alt="" />
-        </a>
+      <div class="text-[16px] flex">
+        <img src="/assets/svgs/user-ic.svg" alt="" height="20px" class="mr-2" />
+        <p v-if="role === 1" class="">Administrator</p>
+        <p v-if="role === 2" class="">Front Office</p>
+        <p v-if="role === 3" class="">Back Office</p>
       </div>
     </section>
 
@@ -54,14 +65,16 @@
           </div>
         </div>
       </div>
-
-      <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:gap-11">
+      <p v-if="$fetchState.pending">Pemasukan Loading ...</p>
+      <p v-else-if="$fetchState.error">An error occurred :(</p>
+      <div v-else class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:gap-11">
         <div class="card !gap-y-10">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-grey">Pemasukan</p>
+
               <div class="text-[32px] font-bold text-dark mt-[6px]">
-                Rp. 425,000
+                Rp. {{ formatPrice(hitung.data.pemasukan) }}
               </div>
             </div>
           </div>
@@ -71,7 +84,7 @@
             <div>
               <p class="text-grey">Pengeluaran</p>
               <div class="text-[32px] font-bold text-dark mt-[6px]">
-                250.000
+                Rp. {{ formatPrice(hitung.data.pengeluaran) }}
               </div>
             </div>
           </div>
@@ -86,6 +99,35 @@
           <div>
             <div class="text-xl font-medium text-dark">Data Kasir</div>
             <p class="text-grey">Kas Kecil</p>
+          </div>
+          <div class="flex items-center">
+            <div class="relative">
+              <input
+                name="start"
+                type="date"
+                v-model="from"
+                class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
+              />
+            </div>
+
+            <span class="mx-4 text-gray-500">to</span>
+            <div class="relative mr-4">
+              <input
+                v-model="to"
+                name="end"
+                type="date"
+                class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
+                placeholder="Select date end"
+              />
+            </div>
+
+            <a
+              download=""
+              @click="modalExport = !modalExport"
+              class="button cursor-pointer py-2 px-4 bg-green-400 rounded-lg text-white"
+            >
+              Export to Excel
+            </a>
           </div>
         </div>
       </div>
@@ -123,11 +165,14 @@
                     id="table-search"
                     v-model.lazy="keywords"
                     class="block p-2 pl-10 w-80 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Search for items"
+                    placeholder="Cari uraian transaksi, no bukti"
                   />
                 </div>
                 <NuxtLink
-                  :to="{ name: 'frontoffices-create' }"
+                  :to="{
+                    name: 'cabang-id-kaskecil-create',
+                    params: { id: cabang_id },
+                  }"
                   class="btn-sm px-4 py-2 rounded-lg bg-orange-400 text-sm text-white"
                 >
                   Tambah
@@ -175,13 +220,68 @@
                   {{ item.coakredit.name }}
                 </td>
                 <td v-else></td>
-                <td class="py-4 px-6">{{ item.jumlah }}</td>
-                <td class="py-4 px-6 text-right">
-                  <a
-                    href="#"
-                    class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                    >Edit</a
+                <td class="py-4 px-6">{{ formatPrice(item.jumlah) }}</td>
+                <td class="py-4 px-6">
+                  <button
+                    id="dropdownMenuIconButton"
+                    data-dropdown-toggle="dropdownDots"
+                    class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-900 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none"
+                    type="button"
+                    @click="toggleDropDown(item.id)"
                   >
+                    <svg
+                      class="w-6 h-6"
+                      aria-hidden="true"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
+                      ></path>
+                    </svg>
+                  </button>
+
+                  <!-- Dropdown menu -->
+                  <div
+                    v-show="isHidden"
+                    refs="drop"
+                    id="dropdownDots"
+                    class="bg-white rounded divide-y divide-gray-100 shadow absolute"
+                    :class="isHidden === item.id ? 'show' : 'hidden'"
+                  >
+                    <ul
+                      class="py-1 text-sm text-gray-700"
+                      aria-labelledby="dropdownMenuIconButton"
+                    >
+                      <li>
+                        <Nuxt-Link
+                          :to="{
+                            name: 'cabang-id-kaskecil-edit',
+                            params: { id: cabang_id, item: item.id },
+                          }"
+                          class="block py-2 px-4 hover:bg-gray-100"
+                          >Edit
+                        </Nuxt-Link>
+                      </li>
+                      <li>
+                        <button
+                          href="#"
+                          class="block py-2 px-4 hover:bg-gray-100"
+                          @click="openModal(item.id, index), (msg = item.name)"
+                        >
+                          Delete
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+                  <!-- <div class="flex items-center">
+                  <NuxtLink :to="{name: '', params: { id: cabang_id }}"  class="bg-gray-100"
+                  tag="img"
+                  :src="require('~/static/assets/svgs/dot3.svg')" >
+                      
+                  </Nuxtlink>
+                </div> -->
                 </td>
               </tr>
             </tbody>
@@ -223,11 +323,12 @@
             >
               <button
                 v-if="
-                  ada.label != '&laquo; Previous' && ada.label != 'Next &raquo;'
+                  ada.label != '&laquo; Sebelumnya' &&
+                  ada.label != 'Berikutnya &raquo;'
                 "
                 :value="index"
                 @click="updatePage"
-                class="py-2 px-3 text-sm leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
+                class="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
               >
                 {{ ada.label }}
               </button>
@@ -251,22 +352,49 @@
 </template>
 
 <script>
+import Modal from '@/components/Modal.vue'
+import { mapActions } from 'vuex'
 export default {
+  components: { Modal },
   layout: 'dashboard',
   middleware: 'auth',
   data() {
     return {
+      isHidden: false,
       lastPage: '',
       nextUrl: 2,
       prevUrl: '',
       keywords: null,
       pagenow: null,
       kaskecil: {},
+      msg: '',
+      upload: 'Konfirmasi',
+      modalExport: false,
+      hapus: 'Konfirmasi',
+      modal: false,
+      hitung: {},
+      from: '',
+      to: '',
+      cabang_id: JSON.parse(localStorage.getItem('cabang_id')),
+      role: JSON.parse(localStorage.getItem('role')),
     }
+  },
+  computed: {
+    sidebar() {
+      return this.$store.state.sidebar
+    },
   },
   watch: {
     keywords(after, before) {
-      this.fetch1()
+      this.refetch()
+      fetchOnServer: false
+    },
+    from(after, before) {
+      this.refetch()
+      fetchOnServer: false
+    },
+    to(after, before) {
+      this.refetch()
       fetchOnServer: false
     },
   },
@@ -275,11 +403,27 @@ export default {
       params: {
         limit: 10,
         page: this.pagenow,
-        name: this.keywords,
+        search: this.keywords,
+        cabang_id: this.cabang_id,
+        from: this.from,
+        to: this.to,
+      },
+    })
+    this.hitung = await this.$axios.get('/hitung/kaskecil', {
+      params: {
+        cabang_id: this.cabang_id,
       },
     })
   },
   methods: {
+    ...mapActions(['toggleSidebar']),
+
+    formatPrice(value) {
+      const rupiah = value.toString().replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1.')
+      // const rupiah = value.toString().toLocaleString('en-GB')
+
+      return rupiah
+    },
     updatePage(event) {
       this.pagenow = parseInt(event.target.value)
       this.$nuxt.refresh()
@@ -287,18 +431,91 @@ export default {
         window.$nuxt.$router.push('/kaskecil')
       })
     },
-    fetch1() {
-      this.$axios
-        .get('/kaskecil', {
+    async deletePost() {
+      //delete data post by ID
+      await this.$axios.delete(`/kaskecil/${this.id}`).then(() => {
+        //remove item array by index
+        // this.coa.data.result.data.splice(this.index, 1)
+        this.id = null
+        this.index = null
+        this.modal = !this.modal
+        this.refetch()
+      })
+    },
+    openModal(id, index) {
+      this.id = id
+      this.index = index
+      this.modal = !this.modal
+    },
+    closeModal() {
+      this.modal = false
+      this.modalimport = false
+      this.modalExport = false
+    },
+    async refetch() {
+      this.kaskecil = await this.$axios.get('/kaskecil', {
+        params: {
+          limit: 10,
+          page: this.pagenow,
+          search: this.keywords,
+          cabang_id: this.cabang_id,
+          from: this.from,
+          to: this.to,
+        },
+      })
+      this.hitung = await this.$axios.get('/hitung/kaskecil', {
+        params: {
+          cabang_id: this.cabang_id,
+        },
+      })
+    },
+    async exportExcel() {
+      this.loading = true
+      let newWindow = window.open()
+      await this.$axios
+        .get('/kaskecil/export', {
           params: {
-            limit: 10,
-            page: this.pagenow,
-            name: this.keywords,
+            cabang_id: this.cabang_id,
+            from: this.from,
+            to: this.to,
           },
+          responseType: 'blob',
         })
-        .then((response) => (this.kaskecil = response.result.data))
-        .catch((error) => {})
-      this.$nuxt.refresh()
+        .then((response) => {
+          this.loading = false
+          // newWindow.location = 'blob:http://lazismu-backend.test/api/kasbesar/export'
+
+          const href = URL.createObjectURL(response.data)
+
+          //     console.log(href);
+
+          // create "a" HTML element with href to file & click
+          const link = document.createElement('a')
+          link.href = href
+          link.setAttribute('download', 'kaskecil.xlsx') //or any other extension
+          link.setAttribute('target', '_blank') //or any other extension
+          document.body.appendChild(link)
+          link.click()
+
+          // clean up "a" element & remove ObjectURL
+          document.body.removeChild(link)
+          URL.revokeObjectURL(href)
+          this.closeModal()
+        })
+
+      //   const response = await this.$http
+      //     .get('http://lazismu-backend.test/api/kasbesar/export')
+      //     .then((response) => {
+      //       fileDownload(response.data, 'pedoman.xlsx')
+      //     })
+    },
+    toggleDropDown(kode) {
+      if (this.isHidden === false) {
+        this.isHidden = kode
+        this.$emit('change', this.isHidden)
+      } else {
+        this.isHidden = false
+      }
     },
   },
 }

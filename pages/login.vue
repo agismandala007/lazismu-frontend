@@ -13,15 +13,9 @@
     >
       <strong class="font-bold">Error</strong>
       <span class="block sm:inline">{{ validation }}</span>
-      <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
-
-      </span>
+      <span class="absolute top-0 bottom-0 right-0 px-4 py-3"> </span>
     </div>
     <form class="w-full card" @submit.prevent="userLogin">
-      <div class="form-group">
-        <label for="" class="text-grey">Cabang</label>
-        <input type="text" class="input-field" v-model="login.cabang_id" />
-      </div>
       <div class="form-group">
         <label for="" class="text-grey">Email Address</label>
         <input type="email" class="input-field" v-model="login.email" />
@@ -90,7 +84,6 @@ export default {
       login: {
         email: '',
         password: '',
-        cabang_id: '',
       },
       validation: null,
     }
@@ -113,7 +106,7 @@ export default {
             this.$router.push({
               name: 'cabang-id-overview',
               params: {
-                id: this.login.cabang_id,
+                id: response.data.result.user.cabang_id,
               },
             })
           })
@@ -132,14 +125,14 @@ export default {
 .show-icon {
   position: absolute;
   right: 35px;
-  top: 256px;
+  top: 162px;
   z-index: 11;
   cursor: pointer;
 }
 .hide-icon {
   position: absolute;
   right: 35px;
-  top: 254px;
+  top: 160px;
   z-index: 11;
   cursor: pointer;
 }

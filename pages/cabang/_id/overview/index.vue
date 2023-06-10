@@ -1,178 +1,155 @@
 <template>
   <div>
     <!-- Main Content -->
-    <div class="lg:pr-[70px] py-[50px] lg:ml-[320px] xl:ml-[365px] px-4 lg:pl-0">
+    <div
+      class="lg:pr-[70px] py-[50px] lg:ml-[320px] px-4 lg:pl-0"
+      :class="sidebar ? 'xl:ml-[365px]' : 'xl:ml-[65px]'"
+    >
+      <!-- Top Section -->
+      <section
+        class="flex flex-col flex-wrap justify-between gap-6 md:items-center md:flex-row"
+      >
+        <div class="flex items-center justify-between gap-4">
+          <a href="#" id="toggleOpenSidebar" @click="toggleSidebar">
+            <svg
+              class="w-6 h-6 text-dark"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h7"
+              ></path>
+            </svg>
+          </a>
+          <div class="text-[32px] font-semibold text-dark">Beranda</div>
+        </div>
+        <div class="text-[16px] flex">
+          <img
+            src="/assets/svgs/user-ic.svg"
+            alt=""
+            height="20px"
+            class="mr-2"
+          />
+          <p v-if="role === 1" class="">Administrator</p>
+          <p v-if="role === 2" class="">Front Office</p>
+          <p v-if="role === 3" class="">Back Office</p>
+        </div>
+      </section>
+      <section class="flex my-8 justify-start gap-2">
+        <div
+          :v-if="role === 1 || role === 3"
+          v-for="(menu, id) in menus"
+          :key="id"
+        >
+          <button
+            class="text-white px-4 py-2 mr-0 rounded-lg"
+            :class="[
+              isActive == menu.statistik
+                ? ['border-2 border-blue-500', menu.color]
+                : menu.color,
+            ]"
+            @click.prevent="
+              changeMenu(menu.statistik), changeActive(menu.statistik)
+            "
+          >
+            {{ menu.item }}
+          </button>
+        </div>
 
-        <!-- Top Section -->
-        <section class="flex flex-col flex-wrap justify-between gap-6 md:items-center md:flex-row">
-            <div class="flex items-center justify-between gap-4">
-                <a href="#" id="toggleOpenSidebar" class="lg:hidden">
-                    <svg class="w-6 h-6 text-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h7">
-                        </path>
-                    </svg>
-                </a>
-                <div class="text-[32px] font-semibold text-dark">
-                    Overview
-                </div>
-            </div>
-            <div class="flex items-center gap-4">
-                <form class="shrink md:w-[516px] w-full">
-                    <input type="text" name="" id="" class="input-field !outline-none !border-none italic form-icon-search ring-indigo-200
-                        focus:ring-2 transition-all duration-300 w-full" placeholder="Search people, team, project">
-                </form>
-                <a href="#"
-                    class="flex-none w-[46px] h-[46px] bg-white rounded-full p-[11px] relative notification-dot">
-                    <img src="/assets/svgs/ic-bell.svg" alt="">
-                </a>
-            </div>
-        </section>
+        <div v-if="role === 2">
+          <button
+            class="text-white px-4 py-2 mr-0 rounded-lg bg-red-500 active:border-cyan-500"
+            @click.prevent="changeMenu('frontoffice')"
+          >
+            Front Office
+          </button>
+        </div>
+      </section>
 
-        <section class="pt-[50px]">
-            <!-- Section Header -->
-            <div class="mb-[30px]">
-                <div class="flex items-center justify-between gap-6">
-                    <div>
-                        <div class="text-xl font-medium text-dark">
-                            Statistics
-                        </div>
-                        <p class="text-grey">Perkembangan Pemasukan dan Pengeluaran</p>
-                    </div>
-                </div>
+      <section>
+        <!-- Section Header -->
+        <div class="mb-[30px]">
+          <div class="flex items-center">
+            <div>
+              <div class="text-xl font-medium text-dark">Statistik</div>
+              <p class="text-grey">
+                Perkembangan Pemasukan dan Pengeluaran dalam satu bulan
+              </p>
             </div>
-
-            <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-2 lg:gap-11">
-                <div class="card !gap-y-10 min-h-[200px]">
-                    <div class="text-center items-center">
-                        <div class="">
-                            <p class="text-grey">My Balance</p>
-                            <div class="text-[32px] font-bold text-orange-400 mt-[6px]">
-                                Rp. 1000.000
-                            </div>
-                        </div>
-                        
-                    </div>
-                </div>
-            
-                <!-- <div class="card !gap-y-10 min-h-[200px]">
-                    <div class="items-center justify-between">
-                        <div>
-                            <doughnut :chartData="Ddata" :chartOptions="Doptions" style="height: 226px; width: 100%"/>
-                        </div>
-                    </div>
-                </div> -->
-            </div>
-        </section>
-
-        <section class="pt-[50px]">
-            <div class="grid md:grid-cols-2 gap-0">
-                <!-- Documents -->
-                <div>
-                    <!-- Section Header -->
-                    <!-- <div class="mb-[30px]">
-                        <div class="items-center justify-between">
-                            <div>
-                                <div class="text-xl font-medium text-dark">
-                                    Chart
-                                </div>
-                                <p class="text-grey">Standard procedure</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card min-h-[468px] items-center">
-                      <div class="bg-white md:min-h-[400px] w-[400px] flex">
-                          <bar :chartData="chartData" :chartOptions="chartOptions"/>
-                      </div>
-                    </div> -->
-                  </div>
-
-                <!-- History -->
-                <div>
-                    <!-- Section Header -->
-                    <div class="mb-[30px]">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <div class="text-xl font-medium text-dark">
-                                    Dana Masuk
-                                </div>
-                                <p class="text-grey">Track the flow</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-chart min-h-[468px] items-center">
-                        <div class="bg-white flex ">
-                          <line-chart-generator />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+          </div>
+        </div>
+        <div class="card-chart min-h-[468px] items-center">
+          <div class="bg-white flex">
+            <line-chart-generator v-if="menu" :menu="menu" />
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 </template>
 
 <script>
-import bar from '@/components/chart/bar.vue';
-import LineChartGenerator from '@/components/chart/LineChart.vue';
-import Doughnut from '@/components/chart/DougnutChart.vue';
+import { mapActions } from 'vuex'
+import bar from '@/components/chart/bar.vue'
+import LineChartGenerator from '@/components/chart/LineChart.vue'
+import Doughnut from '@/components/chart/DougnutChart.vue'
+import role from '~/middleware/role'
 export default {
   layout: 'dashboard',
-  components: { bar,LineChartGenerator, Doughnut },
-  //  data() {
-  //   return {
-  //   role : localStorage.getItem('role'),
-  //   cabang_id : localStorage.getItem('cabang_id'),
-  //     chartData: {
-  //       labels: [ 'January', 'February', 'March' ],
-  //       datasets: [ { data: [40, 20, 12] } ]
-  //     },
-  //     chartOptions: {
-  //       barPercentage: 0.5,
-  //       responsive: true,
-  //       maintainAspectRatio: false,
-  //       backgroundColor:['rgba(255, 99, 132, 0.2)','rgba(255, 159, 64, 0.2)',],
-  //       barThickness: 12,
-  //     },
-  //     Ddata: {
-  //       labels: ['January', 'February', 'March', 'April', 'May'],
-  //       datasets: [
-  //         {
-  //           label: 'Data One',
-  //           backgroundColor: [
-  //             '#15A5BE',
-  //             '#a91123',
-  //             '#172b4d',
-  //             '#fb6340',
-  //             '#a3c7c9',
-  //             '#3F3B61',
-  //           ],
-  //           data: [10, 40, 39, 80, 40],
-  //         },
-  //       ],
-  //     },
-  //     Doptions: {
-  //       borderRadius: 10,
-  //       cutout: '60%',
-  //       responsive: true,
-  //       maintainAspectRatio: false,
-  //       animation: {
-  //         animateRotate: false,
-  //       },
-  //       plugins: {
-  //         legend: {
-  //           position: 'bottom',
-  //         },
-          
-  //       },
-  //     },
+  components: { bar, LineChartGenerator, Doughnut },
+  data() {
+    return {
+      role: JSON.parse(localStorage.getItem('role')),
+      menu: 'frontoffice',
+      isActive: 'frontoffice',
+      menus: [
+        {
+          color: 'bg-red-700',
+          item: 'Kas Besar',
+          statistik: 'kasbesar',
+        },
+        {
+          color: 'bg-green-700',
+          item: 'Front Office',
+          statistik: 'frontoffice',
+        },
+        {
+          color: 'bg-blue-700',
+          item: 'Kas Kecil',
+          statistik: 'kaskecil',
+        },
+        {
+          color: 'bg-yellow-700',
+          item: 'Kas Bank',
+          statistik: 'kasbank',
+        },
+        {
+          color: 'bg-gray-700',
+          item: 'Jurnal Umum',
+          statistik: 'jurnalumum',
+        },
+      ],
+    }
+  },
+  computed: {
+    sidebar() {
+      return this.$store.state.sidebar
+    },
+  },
 
-  //   }
-  // },
-  // mounted(){
-  //   console.log(this.role);
-  //   console.log(this.cabang_id);
-  // }
+  methods: {
+    ...mapActions(['toggleSidebar']),
+    changeMenu(menu) {
+      this.menu = menu
+    },
+    changeActive(menu) {
+      this.isActive = menu
+    },
+  },
 }
 </script>

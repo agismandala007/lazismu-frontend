@@ -1,10 +1,8 @@
 <template>
   <section class="flex flex-col items-center justify-center px-4 mb-8">
-    <div class="text-[24px] font-semibold text-dark">Tambah Data</div>
-    <p class="mt-2 text-base leading-7 text-center mb-[50px] text-grey">
-      Jurnal Umum <br />
-    </p>
-    <form class="w-full card-baru" @submit.prevent="createJurnalumum">
+    <div class="text-[24px] font-semibold text-dark">Edit Jurnal Umum</div>
+    <p class="mt-2 text-base leading-7 text-center mb-[50px] text-grey"></p>
+    <form class="w-full card-baru" @submit.prevent="update">
       <p v-if="listerror" class="m-3">
         <b>Tolong Di Cek Kembali :</b>
         <ul class="list-disc">
@@ -36,7 +34,6 @@
         <input type="text" class="input-field2" v-model="jurnalumum.name" />
       </div>
 
-      
       <div class="form-group">
         <label for="" class="text-grey">Pilih Akun Debit</label>
         <p v-if="$fetchState.pending">Fetching debits...</p>
@@ -50,7 +47,7 @@
           <option
             :value="item.id"
             v-for="item in debit.data.result.data"
-            :key="item"
+            :key="item.id"
           >
             {{ item.name }}
           </option>
@@ -69,7 +66,7 @@
           <option
             :value="item.id"
             v-for="item in kredit.data.result.data"
-            :key="item"
+            :key="item.id"
           >
             {{ item.name }}
           </option>
@@ -84,7 +81,6 @@
             v-model="jurnalumum.jumlah"
           />
         </div>
-        
         <div class="form-group">
           <label for="" class="text-grey">Ref</label>
           <input type="text" class="input-field2" v-model="jurnalumum.ref" />
@@ -92,7 +88,7 @@
       </div>
 
       <button type="submit" class="w-full btn btn-lazismu mt-[14px]">
-        Create
+        Update
       </button>
     </form>
   </section>
@@ -108,54 +104,92 @@ export default {
       kredit: [],
       jurnalumum: {
         name: '',
+        penyetor: '',
+        penerima: '',
         nobukti: '',
         tanggal: '',
         ref: '',
         jumlah: '',
+        tempatbayar: '',
         coadebit_id: '',
         coakredit_id: '',
         cabang_id: this.$route.params.id,
       },
       listerror: false,
       errors: [],
-      cabang_id: this.$route.params.id,
+      id: this.$route.params.item,
     }
   },
   async fetch() {
-    ;(this.debit = await this.$axios.get('/coa', {
-      params: {
-        limit: 120,
-        cabang_id: this.cabang_id,
-        tipe: false,
-      },
-    })),
+    await this.$axios
+      .get('/jurnalumum', {
+        params: {
+          limit: 1,
+          cabang_id: this.jurnalumum.cabang_id,
+          id: this.id,
+        },
+      })
+      .then((response) => {
+        ;(this.jurnalumum.name = response.data.result.name),
+          (this.jurnalumum.penyetor = response.data.result.penyetor),
+          (this.jurnalumum.penerima = response.data.result.penerima),
+          (this.jurnalumum.nobukti =
+            response.data.result.nobukti),
+          (this.jurnalumum.tanggal = response.data.result.tanggal),
+          (this.jurnalumum.ref = response.data.result.ref),
+          (this.jurnalumum.jumlah = response.data.result.jumlah),
+          (this.jurnalumum.tempatbayar = response.data.result.tempatbayar),
+          (this.jurnalumum.coadebit_id = response.data.result.coadebit_id),
+          (this.jurnalumum.coakredit_id = response.data.result.coakredit_id)
+      }),
+      (this.debit = await this.$axios.get('/coa', {
+        params: {
+          limit: 20,
+          cabang_id: this.$route.params.id,
+          tipe: false,
+        },
+      })),
       (this.kredit = await this.$axios.get('/coa', {
         params: {
-          limit: 120,
-          cabang_id: this.cabang_id,
+          cabang_id: this.$route.params.id,
+          limit: 20,
           tipe: 1,
         },
       }))
   },
   methods: {
-    async createJurnalumum() {
-      try {
-        //send registration data to server
-        let response = await this.$axios.post('/jurnalumum', this.jurnalumum)
-
-        //Redirect to my jurnalumum page
-        this.$router.push({ 
-          name: 'cabang-id-jurnalumum',
-          params: {
-            id: this.cabang_id,
-          }, 
+    async update(e) {
+      e.preventDefault()
+      //send data ke Rest API untuk update
+      await this.$axios
+        .post(`/jurnalumum/update/${this.$route.params.item}`, {
+          //data yang dikirim
+          name: this.jurnalumum.name,
+          penerima: this.jurnalumum.penerima,
+          penyetor: this.jurnalumum.penyetor,
+          nobukti: this.jurnalumum.nobukti,
+          tanggal: this.jurnalumum.tanggal,
+          ref: this.jurnalumum.ref,
+          jumlah: this.jurnalumum.jumlah,
+          tempatbayar: this.jurnalumum.tempatbayar,
+          coadebit_id: this.jurnalumum.coadebit_id,
+          coakredit_id: this.jurnalumum.coakredit_id,
+          cabang_id: this.jurnalumum.cabang_id,
         })
-
-        console.log(response)
-      } catch (error) {
-        this.errors = error.response.data.errors
-        this.listerror = true
-      }
+        .then(() => {
+          //redirect ke route "post"
+          this.$router.push({
+            name: 'cabang-id-jurnalumum',
+            params:{
+              id: this.jurnalumum.cabang_id,
+            }
+          })
+        })
+        .catch((error) => {
+          //assign error validasi
+          this.errors = error.response.data.errors
+          this.listerror = true
+        })
     },
   },
 }

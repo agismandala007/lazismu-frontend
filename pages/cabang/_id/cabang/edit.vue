@@ -2,20 +2,21 @@
   <section class="flex flex-col items-center justify-center px-4">
     <div class="text-[32px] font-semibold text-dark">Edit Data</div>
     <p class="mt-4 text-base leading-7 text-center mb-[50px] text-grey">
-      Kredit <i>(Chart of Account)</i> <br />
+      Cabang <br />
     </p>
     <form class="w-full card" @submit="update">
+      <p v-if="listerror" class="m-3">
+        <b>Tolong Di Cek Kembali :</b>
+        <ul class="list-disc">
+          <li v-for="error in errors" :key="error" class="text-red-500">
+          {{ error[0] }}
+          </li>
+        </ul>
+      </p>
+    
       <div class="form-group">
-        <label for="" class="text-grey">Kode</label>
-        <input type="text" class="input-field" v-model="coakredit.kode" />
-      </div>
-      <div class="form-group">
-        <label for="" class="text-grey">Nama Akun</label>
-        <input type="text" class="input-field" v-model="coakredit.name" />
-      </div>
-      <div class="form-group">
-        <label for="" class="text-grey">Laporan</label>
-        <input type="text" class="input-field" v-model="coakredit.laporan" />
+        <label for="" class="text-grey">Nama Cabang</label>
+        <input type="text" class="input-field" v-model="cabang.name" />
       </div>
 
       <button type="submit" class="w-full btn btn-lazismu mt-[14px]">
@@ -31,28 +32,31 @@ export default {
   // middleware: 'auth',
   data() {
     return {
-      coakredit: {
+      cabang: {
         name: '',
-        kode: '',
-        laporan: '',
       },
+      listerror : false,
+      errors: [],
+
       cabang_id: JSON.parse(localStorage.getItem('cabang_id')),
       id: this.$route.params.item,
     }
   },
+  watch: {
+    errors(){
+      this.listerror = true
+    }
+  },
   async fetch() {
     await this.$axios
-      .get('/coakredit', {
+      .get('/cabang', {
         params: {
           limit: 1,
-          cabang_id: this.cabang_id,
           id: this.id,
         },
       })
       .then((response) => {
-        ;(this.coakredit.name = response.data.result.name),
-          (this.coakredit.kode = response.data.result.kode),
-          (this.coakredit.laporan = response.data.result.laporan)
+        ;(this.cabang.name = response.data.result.name)
       })
   },
   methods: {
@@ -60,22 +64,25 @@ export default {
       e.preventDefault()
       //send data ke Rest API untuk update
       await this.$axios
-        .post(`/coakredit/update/${this.$route.params.item}`, {
+        .post(`/cabang/update/${this.$route.params.item}`, {
           //data yang dikirim
-          name: this.coakredit.name,
-          kode: this.coakredit.kode,
-          laporan: this.coakredit.laporan,
-          cabang_id: this.cabang_id,
+          name: this.cabang.name,
+          
         })
         .then(() => {
           //redirect ke route "post"
           this.$router.push({
-            name: 'cabang-id-coa',
+            name: 'cabang-id-cabang',
+            params: {
+            id: this.cabang.cabang_id,
+          },
           })
         })
         .catch((error) => {
           //assign error validasi
-          this.validation = error.response.data
+          
+          this.errors = error.response.data.errors
+          
         })
     },
   },

@@ -1,86 +1,34 @@
 <template>
-  <div class="lg:pr-[70px] py-[50px] lg:ml-[320px] xl:ml-[365px] px-4 lg:pl-0">
+  <div
+    class="lg:pr-[70px] py-[50px] lg:ml-[320px] px-4 lg:pl-0"
+    :class="sidebar ? 'xl:ml-[365px]' : 'xl:ml-[65px]'"
+  >
     <!-- Top Section -->
-    <div class="modal">
-      <div
-        v-if="toogleModal"
-        id="popup-modal"
-        tabindex="-1"
-        class="fixed overflow-x-hidden overflow-y-auto inset-0 z-50 w-full h-screen flex items-center justify-center bg-semi-75"
-      >
-        <div class="relative w-full h-full max-w-md md:h-auto">
-          <div class="relative bg-white rounded-lg shadow">
-            <button
-              @click="toogleModal = false"
-              type="button"
-              class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
-              data-modal-hide="popup-modal"
-            >
-              <svg
-                aria-hidden="true"
-                class="w-5 h-5"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                  clip-rule="evenodd"
-                ></path>
-              </svg>
-              <span class="sr-only">Close modal</span>
-            </button>
-            <div class="p-6 text-center">
-              <svg
-                aria-hidden="true"
-                class="mx-auto mb-4 text-gray-400 w-14 h-14"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                ></path>
-              </svg>
-              <h3 class="mb-5 text-lg font-normal text-gray-500">
-                {{ msg }}
-              </h3>
-              <button
-                @click="deleteKasbesar(data1, data2), (toogleModal = false)"
-                data-modal-hide="popup-modal"
-                type="button"
-                class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2"
-              >
-                Yes, I'm sure
-              </button>
-              <button
-                @click="toogleModal = false"
-                data-modal-hide="popup-modal"
-                type="button"
-                class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
-              >
-                Tidak
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div
-        v-if="toogleModal"
-        class="fixed inset-0 z-40 opacity-25 bg-black"
-      ></div>
-    </div>
+    <Modal
+      :onClick="deleteKasbesar"
+      v-show="modal"
+      :toogleModal="modal"
+      :close="closeModal"
+      :wrongaction="hapus"
+      >Hapus akun
+      <b class="text-red-700"
+        ><i>{{ msg }}</i></b
+      ></Modal
+    >
+    <Modal
+      :onClick="exportExcel"
+      v-show="modalExport"
+      :toogleModal="modalExport"
+      :close="closeModal"
+      :action="upload"
+      >Export dalam bentuk Excel ?</Modal
+    >
     <section
       class="flex flex-col flex-wrap justify-between gap-6 md:items-center md:flex-row"
     >
       <!-- Responsive class jika berbentuk lebih kecil -->
       <div class="flex items-center justify-between gap-4">
-        <a href="#" id="toggleOpenSidebar" class="lg:hidden">
+        <a href="#" id="toggleOpenSidebar" @click="toggleSidebar">
           <svg
             class="w-6 h-6 text-dark"
             fill="none"
@@ -98,34 +46,11 @@
         </a>
         <div class="text-[32px] font-semibold text-dark">Kas Besar</div>
       </div>
-      <div class="flex items-center">
-        <div class="relative">
-          <input
-            name="start"
-            type="date"
-            v-model="from"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
-          />
-        </div>
-
-        <span class="mx-4 text-gray-500">to</span>
-        <div class="relative mr-4">
-          <input
-            v-model="to"
-            name="end"
-            type="date"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
-            placeholder="Select date end"
-          />
-        </div>
-
-        <a
-          download=""
-          @click="exportExcel()"
-          class="button cursor-pointer py-4 px-3 bg-green-400 rounded rounded-lg"
-        >
-          Export to Excel
-        </a>
+      <div class="text-[16px] flex">
+        <img src="/assets/svgs/user-ic.svg" alt="" height="20px" class="mr-2" />
+        <p v-if="role === 1" class="">Administrator</p>
+        <p v-if="role === 2" class="">Front Office</p>
+        <p v-if="role === 3" class="">Back Office</p>
       </div>
     </section>
 
@@ -141,13 +66,15 @@
         </div>
       </div>
 
-      <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:gap-11">
+      <p v-if="$fetchState.pending">Pemasukan Loading ...</p>
+      <p v-else-if="$fetchState.error">An error occurred :(</p>
+      <div v-else class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:gap-11">
         <div class="card !gap-y-10">
           <div class="flex items-center justify-between">
             <div>
               <p class="text-grey">Pemasukan</p>
               <div class="text-[32px] font-bold text-dark mt-[6px]">
-                Rp. 425,000
+                Rp. {{ formatPrice(hitung.data.pemasukan) }}
               </div>
             </div>
           </div>
@@ -157,7 +84,7 @@
             <div>
               <p class="text-grey">Pengeluaran</p>
               <div class="text-[32px] font-bold text-dark mt-[6px]">
-                250.000
+                Rp. {{ formatPrice(hitung.data.pengeluaran) }}
               </div>
             </div>
           </div>
@@ -166,7 +93,7 @@
     </section>
     <!-- Top Section -->
 
-    <section class="pt-[50px]">
+    <section class="pt-[100px]">
       <!-- Section Header -->
       <div class="mb-[30px]">
         <div class="flex items-center justify-between gap-6">
@@ -174,44 +101,73 @@
             <div class="text-xl font-medium text-dark">Data Kasir</div>
             <p class="text-grey">Kas Besar</p>
           </div>
+          <div class="flex items-center">
+            <div class="relative">
+              <input
+                name="start"
+                type="date"
+                v-model="from"
+                class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
+              />
+            </div>
+
+            <span class="mx-4 text-gray-500">to</span>
+            <div class="relative mr-4">
+              <input
+                v-model="to"
+                name="end"
+                type="date"
+                class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
+                placeholder="Select date end"
+              />
+            </div>
+
+            <a
+              download=""
+              @click="modalExport = !modalExport"
+              class="button cursor-pointer py-2 px-4 bg-green-400 rounded-lg text-white"
+            >
+              Export to Excel
+            </a>
+          </div>
         </div>
       </div>
 
       <div class="md:container md:mx-auto">
         <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
-          <table
-            class="w-full text-sm text-left text-gray-500 whitespace-nowrap"
-          >
+          <table class="w-full text-sm text-left text-gray-500">
             <caption
               class="p-5 text-lg font-semibold text-left text-gray-900 bg-white"
             >
               <div class="bg-white flex justify-between items-center">
-                <label for="table-search" class="sr-only">Search</label>
-                <div class="relative mt-1">
-                  <div
-                    class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none"
-                  >
-                    <svg
-                      class="w-5 h-5 text-gray-500"
-                      aria-hidden="true"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      xmlns="http://www.w3.org/2000/svg"
+                <div class="flex items-center mt-3">
+                  <label for="table-search" class="sr-only">Search</label>
+                  <div class="relative">
+                    <div
+                      class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none"
                     >
-                      <path
-                        fill-rule="evenodd"
-                        d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                        clip-rule="evenodd"
-                      ></path>
-                    </svg>
+                      <svg
+                        class="w-5 h-5 text-gray-500"
+                        aria-hidden="true"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                          clip-rule="evenodd"
+                        ></path>
+                      </svg>
+                    </div>
+                    <input
+                      type="text"
+                      id="table-search"
+                      v-model.lazy="keywords"
+                      class="block p-2 pl-10 w-80 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Cari Uraian transaksi, no bukti"
+                    />
                   </div>
-                  <input
-                    type="text"
-                    id="table-search"
-                    v-model.lazy="keywords"
-                    class="block p-2 pl-10 w-80 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Search for items"
-                  />
                 </div>
                 <NuxtLink
                   :to="{
@@ -222,27 +178,6 @@
                 >
                   Tambah
                 </NuxtLink>
-              </div>
-              <div class="flex items-center mt-3">
-                <div class="relative">
-                  <input
-                    name="start"
-                    type="date"
-                    v-model="from"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
-                  />
-                </div>
-
-                <span class="mx-4 text-gray-500">to</span>
-                <div class="relative">
-                  <input
-                    v-model="to"
-                    name="end"
-                    type="date"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
-                    placeholder="Select date end"
-                  />
-                </div>
               </div>
             </caption>
             <thead class="text-xs text-white uppercase bg-orange-400">
@@ -335,12 +270,7 @@
                         <button
                           href="#"
                           class="block py-2 px-4 hover:bg-gray-100"
-                          @click="
-                            ;(toogleModal = !toogleModal),
-                              (msg = 'Delete ' + item.name),
-                              (data1 = item),
-                              (data2 = index)
-                          "
+                          @click="openModal(item.id, index), (msg = item.name)"
                         >
                           <!-- deleteKasbesar(item, index) -->
                           Delete
@@ -378,7 +308,7 @@
                 class="relative block py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
                 :disabled="kasbesar.data.result.current_page == 1"
               >
-                <
+                &lt;
               </button>
             </li>
             <p v-if="$fetchState.pending">Fetching roles...</p>
@@ -390,11 +320,12 @@
             >
               <button
                 v-if="
-                  ada.label != '&laquo; Previous' && ada.label != 'Next &raquo;'
+                  ada.label != '&laquo; Sebelumnya' &&
+                  ada.label != 'Berikutnya &raquo;'
                 "
                 :value="index"
                 @click="updatePage"
-                class="py-2 px-3 text-sm leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
+                class="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
               >
                 {{ ada.label }}
               </button>
@@ -418,35 +349,55 @@
 </template>
 
 <script>
+import Modal from '@/components/Modal.vue'
+import { mapActions } from 'vuex'
+
 export default {
+  components: { Modal },
   layout: 'dashboard',
   middleware: 'auth',
   data() {
     return {
       isHidden: false,
       cabang_id: JSON.parse(localStorage.getItem('cabang_id')),
+      role: JSON.parse(localStorage.getItem('role')),
       lastPage: 1,
-      nextUrl: '',
+      nextUrl: 2,
       prevUrl: '',
       keywords: null,
       pagenow: null,
       kasbesar: {},
-      msg: 'hahaha',
+      msg: '',
       from: '',
       to: '',
       activeGrade: null,
       data1: null,
       data2: null,
-      toogleModal: false,
+
+      hapus: 'Konfirmasi',
+      upload: 'Konfirmasi',
+      modal: false,
+      modalExport: false,
+      hitung: {},
     }
+  },
+  computed: {
+    sidebar() {
+      return this.$store.state.sidebar
+    },
   },
   watch: {
     keywords(after, before) {
-      this.fetch1()
+      this.refetch()
+      fetchOnServer: false
+    },
+
+    from(after, before) {
+      this.refetch()
       fetchOnServer: false
     },
     to(after, before) {
-      this.fetch1()
+      this.refetch()
       fetchOnServer: false
     },
   },
@@ -461,33 +412,53 @@ export default {
         to: this.to,
       },
     })
+    this.hitung = await this.$axios.get('/hitung/kasbesar', {
+      params: {
+        cabang_id: this.cabang_id,
+      },
+    })
   },
   methods: {
-    showModal(grade) {
-      this.activeGrade = grade
-
-      this.$nextTick(() => {
-        this.$bvModal.show('modal-delete-grade')
-      })
+    ...mapActions(['toggleSidebar']),
+    formatPrice(value) {
+      let val = (value / 1).toFixed(2).replace('.', ',')
+      return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
     },
 
     updatePage(event) {
       this.pagenow = parseInt(event.target.value)
-      this.$nuxt.refresh()
-      window.onNuxtReady(() => {
-        window.$nuxt.$router.push('/kasbesars')
-      })
+      this.refetch()
+      this.nextUrl = 1 + parseInt(event.target.value)
     },
-    fetch1() {
-      this.$nuxt.refresh()
+
+    async refetch() {
+      this.kasbesar = await this.$axios.get('/kasbesar', {
+        params: {
+          limit: 10,
+          page: this.pagenow,
+          search: this.keywords,
+          cabang_id: this.cabang_id,
+          from: this.from,
+          to: this.to,
+        },
+      })
+      this.hitung = await this.$axios.get('/hitung/kasbesar', {
+        params: {
+          cabang_id: this.cabang_id,
+        },
+      })
     },
 
     //this for delete
-    async deleteKasbesar(item, index) {
+    async deleteKasbesar() {
       //delete data post by ID
-      await this.$axios.delete(`/kasbesar/${item.id}`).then(() => {
+      await this.$axios.delete(`/kasbesar/${this.id}`).then(() => {
         //remove item array by index
-        this.kasbesar.data.result.data.splice(index, 1)
+        // this.kasbesar.data.result.data.splice(index, 1)
+        this.id = null
+        this.index = null
+        this.modal = !this.modal
+        this.refetch()
       })
     },
     async exportExcel() {
@@ -495,6 +466,11 @@ export default {
       let newWindow = window.open()
       await this.$axios
         .get('/kasbesar/export', {
+          params: {
+            cabang_id: this.cabang_id,
+            from: this.from,
+            to: this.to,
+          },
           responseType: 'blob',
         })
         .then((response) => {
@@ -508,7 +484,7 @@ export default {
           // create "a" HTML element with href to file & click
           const link = document.createElement('a')
           link.href = href
-          link.setAttribute('download', 'invoices.xlsx') //or any other extension
+          link.setAttribute('download', 'kasbesar.xlsx') //or any other extension
           link.setAttribute('target', '_blank') //or any other extension
           document.body.appendChild(link)
           link.click()
@@ -533,6 +509,16 @@ export default {
       } else {
         this.isHidden = false
       }
+    },
+    openModal(id, index) {
+      this.id = id
+      this.index = index
+      this.modal = !this.modal
+    },
+    closeModal() {
+      this.modal = false
+      this.modalimport = false
+      this.modalExport = false
     },
   },
 }

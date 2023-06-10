@@ -52,9 +52,15 @@
               @click="onClick"
               data-modal-hide="popup-modal"
               type="button"
-              class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2"
+              class="text-white focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2"
+              :class="
+                action
+                  ? 'bg-green-600  hover:bg-green-800'
+                  : 'bg-red-600  hover:bg-red-800'
+              "
             >
-              Yes, I'm sure
+              {{ action }}
+              {{ wrongaction }}
             </button>
             <button
               @click="close()"
@@ -84,6 +90,14 @@ export default {
     },
     toogleModal: {
       type: Boolean,
+      required: false,
+    },
+    action: {
+      type: String,
+      required: false,
+    },
+    wrongaction: {
+      type: String,
       required: false,
     },
     close: {

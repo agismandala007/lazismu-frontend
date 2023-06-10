@@ -1,11 +1,33 @@
 <template>
-  <div class="lg:pr-[70px] py-[50px] lg:ml-[320px] xl:ml-[365px] px-4 lg:pl-0">
+  <div
+    class="lg:pr-[70px] py-[50px] lg:ml-[320px] px-4 xl:ml-[365px] lg:pl-0"
+    :class="sidebar ? 'xl:ml-[365px]' : 'xl:ml-[65px]'"
+  >
     <!-- Top Section -->
+    <Modal
+      :onClick="deletePost"
+      v-show="modal"
+      :toogleModal="modal"
+      :close="closeModal"
+      :wrongaction="hapus"
+      >Hapus akun
+      <b class="text-red-700"
+        ><i>{{ msg }}</i></b
+      ></Modal
+    >
+    <Modal
+      :onClick="exportExcel"
+      v-show="modalExport"
+      :toogleModal="modalExport"
+      :close="closeModal"
+      :action="upload"
+      >Export dalam bentuk Excel ?</Modal
+    >
     <section
       class="flex flex-col flex-wrap justify-between gap-6 md:items-center md:flex-row"
     >
       <div class="flex items-center justify-between gap-4">
-        <a href="#" id="toggleOpenSidebar" class="lg:hidden">
+        <a href="#" id="toggleOpenSidebar" @click="toggleSidebar">
           <svg
             class="w-6 h-6 text-dark"
             fill="none"
@@ -23,34 +45,11 @@
         </a>
         <div class="text-[32px] font-semibold text-dark">Front Offices</div>
       </div>
-      <div class="flex items-center">
-        <div class="relative">
-          <input
-            name="start"
-            type="date"
-            v-model="from"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
-          />
-        </div>
-
-        <span class="mx-4 text-gray-500">to</span>
-        <div class="relative mr-4">
-          <input
-            v-model="to"
-            name="end"
-            type="date"
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
-            placeholder="Select date end"
-          />
-        </div>
-
-        <a
-          download=""
-          @click="exportExcel()"
-          class="button cursor-pointer py-3 px-3 bg-green-400 rounded rounded-lg"
-        >
-          Export to Excel
-        </a>
+      <div class="text-[16px] flex">
+        <img src="/assets/svgs/user-ic.svg" alt="" height="20px" class="mr-2" />
+        <p v-if="role === 1" class="">Administrator</p>
+        <p v-if="role === 2" class="">Front Office</p>
+        <p v-if="role === 3" class="">Back Office</p>
       </div>
     </section>
 
@@ -73,7 +72,7 @@
               <p class="text-grey">Pemasukan</p>
               <div class="text-[32px] font-bold text-dark mt-[6px]">
                 <p v-if="$fetchState.pending">Fetching roles...</p>
-                Rp. {{ pemasukan }}
+                <p v-else>Rp. {{ formatPrice(hitung.data.result) }}</p>
               </div>
             </div>
           </div>
@@ -105,13 +104,42 @@
             <div class="text-xl font-medium text-dark">Data Kasir</div>
             <p class="text-grey">Front Offices</p>
           </div>
+          <div class="flex items-center">
+            <div class="relative">
+              <input
+                name="start"
+                type="date"
+                v-model="from"
+                class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
+              />
+            </div>
+
+            <span class="mx-4 text-gray-500">to</span>
+            <div class="relative mr-4">
+              <input
+                v-model="to"
+                name="end"
+                type="date"
+                class="border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5"
+                placeholder="Select date end"
+              />
+            </div>
+
+            <a
+              download=""
+              @click="modalExport = !modalExport"
+              class="button cursor-pointer py-2 px-4 bg-green-400 rounded-lg text-white"
+            >
+              Export to Excel
+            </a>
+          </div>
         </div>
       </div>
 
       <div class="md:container md:mx-auto">
         <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
           <table
-            class="w-full text-sm text-left text-gray-500 dark:text-gray-400 whitespace-nowrap"
+            class="w-full text-sm text-left text-gray-500 dark:text-gray-400"
           >
             <caption
               class="p-5 text-lg font-semibold text-left text-gray-900 bg-white"
@@ -141,7 +169,7 @@
                     id="table-search"
                     v-model.lazy="keywords"
                     class="block p-2 pl-10 w-80 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Search for items"
+                    placeholder="Cari no bukti, uraian transaksi"
                   />
                 </div>
                 <NuxtLink
@@ -188,7 +216,7 @@
                     frontoffice.data.result.current_page * 10 - 10 + index + 1
                   }}
                 </th>
-                <td class="py-4 px-6">{{ item.nobuktipenerima }}</td>
+                <td class="py-4 px-1">{{ item.nobuktipenerima }}</td>
                 <td class="py-4 px-6">{{ item.name }}</td>
                 <td class="py-4 px-6">{{ item.tanggal }}</td>
                 <td class="py-4 px-6">{{ item.penyetor }}</td>
@@ -249,7 +277,7 @@
                         <button
                           href="#"
                           class="block py-2 px-4 hover:bg-gray-100"
-                          @click="deleteFrontoffice(item, index)"
+                          @click="openModal(item.id, index), (msg = item.name)"
                         >
                           Delete
                         </button>
@@ -286,7 +314,7 @@
                 class="relative block py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
                 :disabled="frontoffice.data.result.current_page == 1"
               >
-                <
+                &lt;
               </button>
             </li>
             <p v-if="$fetchState.pending">Fetching roles...</p>
@@ -298,11 +326,12 @@
             >
               <button
                 v-if="
-                  ada.label != '&laquo; Previous' && ada.label != 'Next &raquo;'
+                  ada.label != '&laquo; Sebelumnya' &&
+                  ada.label != 'Berikutnya &raquo;'
                 "
                 :value="index"
                 @click="updatePage"
-                class="py-2 px-3 text-sm leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
+                class="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700"
               >
                 {{ ada.label }}
               </button>
@@ -326,9 +355,12 @@
 </template>
 
 <script>
+import Modal from '@/components/Modal.vue'
+import { mapActions } from 'vuex'
 export default {
+  components: { Modal },
   layout: 'dashboard',
-  middleware: 'auth',
+  middleware: ['auth'],
   data() {
     return {
       nextUrl: 2,
@@ -340,18 +372,34 @@ export default {
       pagenow: 1,
       frontoffice: {},
       isHidden: false,
+      role: JSON.parse(localStorage.getItem('role')),
       cabang_id: JSON.parse(localStorage.getItem('cabang_id')),
       from: '',
       to: '',
+      hapus: 'Konfirmasi',
+      upload: 'Konfirmasi',
+      modal: false,
+      modalExport: false,
+      msg: '',
+      hitung: '',
     }
+  },
+  computed: {
+    sidebar() {
+      return this.$store.state.sidebar
+    },
   },
   watch: {
     keywords(after, before) {
-      this.fetch1()
+      this.refetch()
+      fetchOnServer: false
+    },
+    from(after, before) {
+      this.refetch()
       fetchOnServer: false
     },
     to(after, before) {
-      this.fetch1()
+      this.refetch()
       fetchOnServer: false
     },
   },
@@ -364,33 +412,36 @@ export default {
           page: this.pagenow,
           search: this.keywords,
           cabang_id: this.cabang_id,
+          from: this.from,
+          to: this.to,
         },
       })
       .then((response) => {
         this.frontoffice = response
         this.now = this.frontoffice.data.result.current_page
       })
+    this.hitung = await this.$axios.get('/hitung/fo', {
+      params: {
+        cabang_id: this.cabang_id,
+      },
+    })
   },
   methods: {
+    ...mapActions(['toggleSidebar']),
+    formatPrice(value) {
+      let val = (value / 1).toFixed(2).replace('.', ',')
+      return val.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+    },
     updatePage(event) {
       this.pagenow = parseInt(event.target.value)
       this.nextUrl = 1 + parseInt(event.target.value)
       this.$nuxt.refresh()
     },
-    fetch1() {
-      this.$nuxt.refresh()
-    },
-    //this for delete
-    async deleteFrontoffice(item, index) {
-      //delete data post by ID
-      await this.$axios.delete(`/frontoffice/${item.id}`).then(() => {
-        //remove item array by index
-        this.frontoffice.data.result.data.splice(index, 1)
-      })
-    },
 
     //Method for dots three
     toggleDropDown(kode) {
+      console.log(this.isHidden)
+
       if (this.isHidden === false) {
         this.isHidden = kode
         this.$emit('change', this.isHidden)
@@ -398,42 +449,77 @@ export default {
         this.isHidden = false
       }
     },
-  },
+    //Method untuk export frontoffice
+    async exportExcel() {
+      this.loading = true
+      let newWindow = window.open()
+      await this.$axios
+        .get('/frontoffice/export', {
+          params: {
+            cabang_id: this.cabang_id,
+            from: this.from,
+            to: this.to,
+          },
+          responseType: 'blob',
+        })
+        .then((response) => {
+          this.loading = false
+          // newWindow.location = 'blob:http://lazismu-backend.test/api/kasbesar/export'
 
-  //Method untuk export frontoffice
-  async exportExcel() {
-    this.loading = true
-    let newWindow = window.open()
-    await this.$axios
-      .get('/frontoffice/export', {
-        responseType: 'blob',
+          const href = URL.createObjectURL(response.data)
+
+          // create "a" HTML element with href to file & click
+          const link = document.createElement('a')
+          link.href = href
+          link.setAttribute('download', 'frontoffice.xlsx') //or any other extension
+          link.setAttribute('target', '_blank') //or any other extension
+          document.body.appendChild(link)
+          link.click()
+
+          // clean up "a" element & remove ObjectURL
+          document.body.removeChild(link)
+          URL.revokeObjectURL(href)
+          this.closeModal()
+        })
+    },
+    async deletePost() {
+      //delete data post by ID
+      await this.$axios.delete(`/frontoffice/${this.id}`).then(() => {
+        //remove item array by index
+        // this.coa.data.result.data.splice(this.index, 1)
+        this.id = null
+        this.index = null
+        this.modal = !this.modal
+        this.refetch()
       })
-      .then((response) => {
-        this.loading = false
-        // newWindow.location = 'blob:http://lazismu-backend.test/api/kasbesar/export'
-
-        const href = URL.createObjectURL(response.data)
-
-        //     console.log(href);
-
-        // create "a" HTML element with href to file & click
-        const link = document.createElement('a')
-        link.href = href
-        link.setAttribute('download', 'frontoffice.xlsx') //or any other extension
-        link.setAttribute('target', '_blank') //or any other extension
-        document.body.appendChild(link)
-        link.click()
-
-        // clean up "a" element & remove ObjectURL
-        document.body.removeChild(link)
-        URL.revokeObjectURL(href)
+    },
+    openModal(id, index) {
+      this.id = id
+      this.index = index
+      this.modal = !this.modal
+    },
+    closeModal() {
+      this.modal = false
+      this.modalimport = false
+      this.modalExport = false
+    },
+    async refetch() {
+      this.frontoffice = await this.$axios.get('/frontoffice', {
+        params: {
+          limit: 10,
+          page: this.pagenow,
+          search: this.keywords,
+          cabang_id: this.cabang_id,
+          from: this.from,
+          to: this.to,
+        },
       })
-
-    //   const response = await this.$http
-    //     .get('http://lazismu-backend.test/api/kasbesar/export')
-    //     .then((response) => {
-    //       fileDownload(response.data, 'pedoman.xlsx')
-    //     })
+      this.hitung = await this.$axios.get('/hitung/fo', {
+        params: {
+          cabang_id: this.cabang_id,
+        },
+      })
+    },
   },
 }
 </script>

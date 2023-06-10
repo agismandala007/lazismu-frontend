@@ -1,6 +1,6 @@
 <template>
   <section class="flex flex-col items-center justify-center px-4 mb-8">
-    <div class="text-[24px] font-semibold text-dark">Edit Kas Besar</div>
+    <div class="text-[24px] font-semibold text-dark">Edit Kas Bank</div>
     <p class="mt-2 text-base leading-7 text-center mb-[50px] text-grey"></p>
     <div class="w-full card-baru">
       
@@ -19,7 +19,7 @@
         >
           Pemasukan
         </button>
-        {{ inputType }}
+        
       </div>
       <p v-if="listerror" class="m-3">
         <b>Tolong Di Cek Kembali :</b>
@@ -36,7 +36,7 @@
             <input
               type="date"
               class="input-field2"
-              v-model="kasbesar.tanggal"
+              v-model="kasbank.tanggal"
             />
           </div>
           <div class="form-group col-span-2">
@@ -44,13 +44,13 @@
             <input
               type="text"
               class="input-field2"
-              v-model="kasbesar.nobuktikas"
+              v-model="kasbank.nobuktikas"
             />
           </div>
         </div>
         <div class="form-group">
           <label for="" class="text-grey">Uraian Transaksi</label>
-          <input type="text" class="input-field2" v-model="kasbesar.name" />
+          <input type="text" class="input-field2" v-model="kasbank.name" />
         </div>
 
         <div class="grid grid-cols-2 gap-4">
@@ -59,12 +59,12 @@
             <input
               type="text"
               class="input-field2"
-              v-model="kasbesar.penerima"
+              v-model="kasbank.penerima"
             />
           </div>
           <div class="form-group">
             <label for="" class="text-grey">Ref</label>
-            <input type="text" class="input-field2" v-model="kasbesar.ref" />
+            <input type="text" class="input-field2" v-model="kasbank.ref" />
           </div>
         </div>
         <div class="form-group">
@@ -72,7 +72,7 @@
           <p v-if="$fetchState.pending">Fetching debits...</p>
           <select
             v-else
-            v-model="kasbesar.coadebit_id"
+            v-model="kasbank.coadebit_id"
             name="debit"
             id=""
             class="appearance-none input-field2 form-icon-chevron_down w-9/12"
@@ -91,7 +91,7 @@
           <p v-if="$fetchState.pending">Fetching roles...</p>
           <select
             v-else
-            v-model="kasbesar.coakredit_id"
+            v-model="kasbank.coakredit_id"
             name="kredit"
             id=""
             class="appearance-none input-field2 form-icon-chevron_down w-9/12"
@@ -108,7 +108,7 @@
         <div class="grid grid-cols-3 gap-4">
           <div class="form-group">
             <label for="" class="text-grey">Jumlah</label>
-            <input type="text" class="input-field2" v-model="kasbesar.jumlah" />
+            <input type="text" class="input-field2" v-model="kasbank.jumlah" />
           </div>
         </div>
 
@@ -128,7 +128,7 @@ export default {
     return {
       debit: [],
       kredit: [],
-      kasbesar: {
+      kasbank: {
         name: '',
         penerima: '',
         nobuktikas: '',
@@ -163,10 +163,10 @@ export default {
         },
       }))
     await this.$axios
-      .get('/kasbesar', {
+      .get('/kasbank', {
         params: {
           limit: 1,
-          cabang_id: this.kasbesar.cabang_id,
+          cabang_id: this.kasbank.cabang_id,
           id: this.id,
         },
       })
@@ -180,15 +180,15 @@ export default {
       } else {
         this.inputType = false
       }
-        ;(this.kasbesar.name = response.data.result.name),
-          (this.kasbesar.penerima = response.data.result.penerima),
-          (this.kasbesar.nobuktikas = response.data.result.nobuktikas),
-          (this.kasbesar.tanggal = response.data.result.tanggal),
-          (this.kasbesar.ref = response.data.result.ref),
-          (this.kasbesar.jumlah = response.data.result.jumlah),
-          this.kasbesar.coadebit_id = response.data.result.coadebit_id;
-        this.kasbesar.coakredit_id = response.data.result.coakredit_id;
-          (this.kasbesar.jenis_data = response.data.result.jenis_data)
+        ;(this.kasbank.name = response.data.result.name),
+          (this.kasbank.penerima = response.data.result.penerima),
+          (this.kasbank.nobuktikas = response.data.result.nobuktikas),
+          (this.kasbank.tanggal = response.data.result.tanggal),
+          (this.kasbank.ref = response.data.result.ref),
+          (this.kasbank.jumlah = response.data.result.jumlah),
+          this.kasbank.coadebit_id = response.data.result.coadebit_id;
+        this.kasbank.coakredit_id = response.data.result.coakredit_id;
+          (this.kasbank.jenis_data = response.data.result.jenis_data)
           
       })
       
@@ -197,7 +197,7 @@ export default {
     changeDataPengeluaran() {
       if (this.inputType === false) {
         console.log('ganti ke pengeluaran')
-        this.kasbesar.jenis_data = 1
+        this.kasbank.jenis_data = 1
         this.inputType = true
         this.temp = this.debit
         this.debit = this.kredit
@@ -208,7 +208,7 @@ export default {
     changeDataPemasukan() {
       if (this.inputType === true) {
         this.inputType = false
-        this.kasbesar.jenis_data = 0
+        this.kasbank.jenis_data = 0
         this.temp = this.debit
         this.debit = this.kredit
         this.kredit = this.temp
@@ -219,25 +219,25 @@ export default {
       e.preventDefault()
       //send data ke Rest API untuk update
       await this.$axios
-        .post(`/kasbesar/update/${this.$route.params.item}`, {
+        .post(`/kasbank/update/${this.$route.params.item}`, {
           //data yang dikirim
-          name: this.kasbesar.name,
-          penerima: this.kasbesar.penerima,
-          nobuktikas: this.kasbesar.nobuktikas,
-          tanggal: this.kasbesar.tanggal,
-          ref: this.kasbesar.ref,
-          jumlah: this.kasbesar.jumlah,
-          coadebit_id: this.kasbesar.coadebit_id,
-          coakredit_id: this.kasbesar.coakredit_id,
-          cabang_id: this.kasbesar.cabang_id,
-          jenis_data: this.kasbesar.jenis_data,
+          name: this.kasbank.name,
+          penerima: this.kasbank.penerima,
+          nobuktikas: this.kasbank.nobuktikas,
+          tanggal: this.kasbank.tanggal,
+          ref: this.kasbank.ref,
+          jumlah: this.kasbank.jumlah,
+          coadebit_id: this.kasbank.coadebit_id,
+          coakredit_id: this.kasbank.coakredit_id,
+          cabang_id: this.kasbank.cabang_id,
+          jenis_data: this.kasbank.jenis_data,
         })
         .then(() => {
           //redirect ke route "post"
           this.$router.push({
-            name: 'cabang-id-kasbesar',
+            name: 'cabang-id-kasbank',
             params: {
-              id: this.kasbesar.cabang_id,
+              id: this.kasbank.cabang_id,
             },
           })
         })

@@ -1,7 +1,8 @@
 <template>
   <div>
     <div
-      class="hidden lg:block fixed lg:max-w-[295px] w-full overflow-y-auto h-full bg-white z-[999]"
+      class="fixed lg:max-w-[295px] w-full overflow-y-auto h-full bg-white z-[999]"
+      :class="sidebar ? 'block' : 'hidden'"
       id="sidebarHRIS"
     >
       <div class="px-6 py-[50px] gap-y-[50px] flex flex-col">
@@ -9,7 +10,12 @@
           <a href="#" class="flex justify-center">
             <img src="/assets/svgs/logo-type.svg" alt="" />
           </a>
-          <a href="#" id="toggleCloseSidebar" class="lg:hidden">
+          <a
+            href="#"
+            id="toggleCloseSidebar"
+            class="lg:hidden"
+            @click="toggleSidebar"
+          >
             <svg
               class="w-6 h-6 text-dark"
               fill="none"
@@ -29,7 +35,7 @@
         <div class="flex flex-col gap-4">
           <div class="text-sm text-grey">Menu utama</div>
           <NuxtLink
-            v-if="role === 1"
+            v-if="role === 1 || 2 || 3"
             :to="{ name: 'cabang-id-overview', params: { id: cabang_id } }"
             class="nav-link"
           >
@@ -37,7 +43,7 @@
             Beranda
           </NuxtLink>
           <NuxtLink
-            v-if="role === 1"
+            v-if="role !== 2"
             :to="{ name: 'cabang-id-coa', params: { id: cabang_id } }"
             class="nav-link"
           >
@@ -45,7 +51,7 @@
             Akun Debit Kredit
           </NuxtLink>
           <NuxtLink
-            v-if="role === 1 || 2"
+            v-if="role === 1 || 2 || 3"
             :to="{ name: 'cabang-id-frontoffices', params: { id: cabang_id } }"
             class="nav-link"
           >
@@ -53,7 +59,7 @@
             Front Offices
           </NuxtLink>
           <NuxtLink
-            v-if="role === 1"
+            v-if="role !== 2"
             :to="{ name: 'cabang-id-kasbesar', params: { id: cabang_id } }"
             class="nav-link"
           >
@@ -61,7 +67,7 @@
             Kas Besar
           </NuxtLink>
           <NuxtLink
-            v-if="role === 1"
+            v-if="role !== 2"
             :to="{ name: 'cabang-id-kaskecil', params: { id: cabang_id } }"
             class="nav-link"
           >
@@ -69,7 +75,7 @@
             Kas Kecil
           </NuxtLink>
           <NuxtLink
-            v-if="role === 1"
+            v-if="role !== 2"
             :to="{ name: 'cabang-id-kasbank', params: { id: cabang_id } }"
             class="nav-link"
           >
@@ -77,7 +83,7 @@
             Kas Bank
           </NuxtLink>
           <NuxtLink
-            v-if="role === 1"
+            v-if="role !== 2"
             :to="{ name: 'cabang-id-jurnalumum', params: { id: cabang_id } }"
             class="nav-link"
           >
@@ -89,7 +95,7 @@
           <div class="text-sm text-grey">Others</div>
           <NuxtLink
             v-if="role === 1"
-            :to="{ name: 'cabang-id-cabang' }"
+            :to="{ name: 'cabang-id-cabang', params: { id: cabang_id } }"
             class="nav-link"
           >
             <img src="/assets/svgs/ic-home.svg" alt="" />
@@ -114,6 +120,7 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex'
 export default {
   data() {
     return {
@@ -121,7 +128,14 @@ export default {
       cabang_id: JSON.parse(localStorage.getItem('cabang_id')),
     }
   },
+  computed: {
+    sidebar() {
+      return this.$store.state.sidebar
+    },
+  },
   methods: {
+    ...mapActions(['openSidebar']),
+    ...mapActions(['toggleSidebar']),
     async logout() {
       localStorage.removeItem('cabang_id')
       localStorage.removeItem('role')

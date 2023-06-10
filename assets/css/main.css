@@ -19,7 +19,7 @@
     @apply bg-white relative p-6 rounded-[26px] flex flex-col gap-y-4 md:max-w-[500px];
   }
   .card-chart {
-    @apply bg-white relative p-6 rounded-[26px] flex flex-col gap-y-4 md:max-w-[700px];
+    @apply bg-white relative p-6 rounded-[26px] flex flex-col gap-y-4 md:max-w-[1200px];
   }
   .card-baru {
     @apply bg-white relative p-6 rounded-[26px] flex flex-col gap-y-7 md:max-w-[700px];
