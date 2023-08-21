@@ -43,8 +43,17 @@
             type="text"
             class="input-field2"
             v-model="frontoffice.penyetor"
+            @focus="toggleFocus(true)"
+            required
           />
         </div>
+
+        <div v-if="isFocus">
+          <ul v-for="user in data">
+            <li :key="user.id" @click="handleAddUser(user.nama)" class="bg-gray-50 hover:bg-gray-200 cursor-pointer">{{ user.nama }}</li>
+          </ul>
+        </div>
+
         <div class="form-group">
           <label for="" class="text-grey">Penerima</label>
           <input
@@ -143,8 +152,10 @@ export default {
         coakredit_id: '',
         cabang_id: this.$route.params.id,
       },
+      isFocus: false,
       listerror: false,
       errors: [],
+      data: [],
       cabang_id: this.$route.params.id,
     }
   },
@@ -165,6 +176,30 @@ export default {
       }))
   },
   methods: {
+
+    toggleFocus(value = true) {
+      this.isFocus = value
+      if(value) {
+        this.fetch()
+      }
+    },
+    handleAddUser(name) {
+      this.frontoffice.penyetor = name
+      this.isFocus = false
+    },
+    async fetch() {
+      try{
+        const {data} = await this.$axios.get('/muzaki', this.data)
+        // let getNama = nama.data.result
+        // console.log(nama.data.result.data)
+        this.data  = data.result.data
+        console.log(this.data)
+      } catch (error) {
+        this.errors = error.nama.data.errors
+        this.listerror = true
+      }
+    },
+
     async createFrontoffice() {
       try {
         //send registration data to server

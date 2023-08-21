@@ -13,6 +13,17 @@
           </li>
         </ul>
       </p>
+      <!-- <button @click="fetch">Ambil Data</button>
+      <table>
+        <tr>
+          <th>Nama</th>
+          <th>Alamat</th>
+        </tr>
+        <tr for="item in data" :key="data">
+          <td>{{item.nama}}</td>
+          <td>{{item.alamat}}</td>
+        </tr>
+      </table> -->
       <div class="form-group">
         <label for="" class="text-grey">Kode</label>
         <input
@@ -23,16 +34,37 @@
           required
         />
       </div>
+
       <div class="form-group">
         <label for="" class="text-grey">Nama Akun</label>
-        <input
-          type="text"
-          class="input-field"
-          value="coa.name"
-          v-model="coa.name"
-          required
-        />
+        <div class="flex content-center space-x-3">
+          <input
+            id="nama"
+            type="text"
+            class="input-field w-4/5"
+            v-model="name"
+            @focus="toggleFocus(true)"
+            required
+          />
+
+          <NuxtLink
+            :to="{
+              name: 'cabang-id-muzaki-create',
+              params: { id: cabang_id },
+            }"
+            class="btn-sm px-4 py-3 rounded-lg bg-orange-400 text-sm text-white"
+          >
+            +
+          </NuxtLink>
+        </div>
       </div>
+
+      <div v-if="isFocus">
+        <ul v-for="user in data">
+          <li :key="user.id" @click="handleAddUser(user.nama)" class="bg-gray-50 hover:bg-gray-200 cursor-pointer">{{ user.nama }}</li>
+        </ul>
+      </div>
+
       <div class="form-group">
         <label for="" class="text-grey">Laporan</label>
         <input
@@ -73,14 +105,41 @@ export default {
         name: '',
         kode: '',
         laporan: '',
-        cabang_id: this.$route.params.id,
+        // cabang_id: this.$route.params.id,
         tipe: '',
       },
+      name: '',
+      isFocus: false,
       listerror: false,
       errors: [],
+      data: [],
     }
   },
+
   methods: {
+    toggleFocus(value = true) {
+      this.isFocus = value
+      if(value) {
+        this.fetch()
+      }
+    },
+    handleAddUser(name) {
+      this.name = name
+      this.isFocus = false
+    },
+    async fetch() {
+      try{
+        const {data} = await this.$axios.get('/muzaki', this.data)
+        // let getNama = nama.data.result
+        // console.log(nama.data.result.data)
+        this.data  = data.result.data
+        console.log(this.data)
+      } catch (error) {
+        this.errors = error.nama.data.errors
+        this.listerror = true
+      }
+    },
+
     async createCoa() {
       try {
         //send registration data to server
@@ -101,6 +160,6 @@ export default {
         this.listerror = true
       }
     },
-  },
+  }
 }
 </script>

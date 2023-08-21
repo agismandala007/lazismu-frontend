@@ -201,14 +201,16 @@
                 </th>
               </tr>
             </thead>
-            <tbody>
+            <tbody
+            v-for="(item, index) in frontoffice.data.result.data"
+            
+            >
               <p v-if="$fetchState.pending">Fetching roles...</p>
               <p v-else-if="$fetchState.error">An error occurred :(</p>
 
               <tr
                 class="bg-white border-b"
                 v-else
-                v-for="(item, index) in frontoffice.data.result.data"
                 :key="index"
               >
                 <th scope="row" class="py-4 px-6 font-medium text-gray-900">
@@ -321,8 +323,11 @@
             <p v-else-if="$fetchState.error">An error occurred :(</p>
             <li
               v-else
-              v-for="(ada, index) in frontoffice.data.result.links"
-              :key="index"
+              
+            >
+            <div
+            v-for="(ada, index) in frontoffice.data.result.links"
+            
             >
               <button
                 v-if="
@@ -335,6 +340,8 @@
               >
                 {{ ada.label }}
               </button>
+            </div>
+              
             </li>
 
             <li>
