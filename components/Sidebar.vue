@@ -48,7 +48,7 @@
             class="nav-link"
           >
             <img src="/assets/svgs/ic-users.svg" alt="" />
-            Akun Debit Kredit
+            COA
           </NuxtLink>
           <NuxtLink
             v-if="role === 1 || 2 || 3"
@@ -109,6 +109,16 @@
             <img src="/assets/svgs/ic-home.svg" alt="" />
             User
           </NuxtLink>
+
+          <NuxtLink
+            v-if="role === 1"
+            :to="{ name: 'cabang-id-muzaki', params: { id: cabang_id } }"
+            class="nav-link"
+          >
+            <img src="/assets/svgs/ic-home.svg" alt="" />
+            Muzakki
+          </NuxtLink>
+
           <button @click="logout" class="nav-link">
             <img src="/assets/svgs/ic-signout.svg" alt="" />
             Logout
