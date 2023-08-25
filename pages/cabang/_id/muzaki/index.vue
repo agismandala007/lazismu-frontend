@@ -107,7 +107,7 @@
             </div>
             <NuxtLink
               :to="{
-                name: 'cabang-id-user-create',
+                name: 'cabang-id-muzaki-create',
                 params: { id: cabang_id },
               }"
               class="btn-sm px-4 py-2 rounded-lg bg-orange-400 text-sm text-white"
