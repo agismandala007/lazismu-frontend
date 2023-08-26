@@ -89,6 +89,16 @@
             </div>
           </div>
         </div>
+        <div class="card !gap-y-10">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-grey">Jumlah Saldo</p>
+              <div class="text-[32px] font-bold text-dark mt-[6px]">
+                Rp. {{ formatPrice(hitung.data.pemasukan - hitung.data.pengeluaran) }}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
