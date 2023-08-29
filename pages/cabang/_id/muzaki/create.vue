@@ -75,7 +75,7 @@ export default {
       },
       listerror: false,
       errors: [],
-      coa: this.$route.params.id,
+      home: this.$route.params.id,
     }
   },
   methods: {
@@ -86,9 +86,9 @@ export default {
 
         //Redirect to my user page
         this.$router.push({
-          name: 'cabang-id-coa ',
+          name: 'cabang-id-muzaki',
           params: {
-            id: this.muzaki.coa,
+            id: this.home,
           },
         })
 

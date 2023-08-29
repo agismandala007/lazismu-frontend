@@ -37,22 +37,37 @@
       </div>
 
       <div class="grid grid-cols-2 gap-4">
-        <div class="form-group">
-          <label for="" class="text-grey">Muzakki</label>
-          <input
-            type="text"
-            class="input-field2"
-            v-model="frontoffice.penyetor"
-            @focus="toggleFocus(true)"
-            required
-          />
-        </div>
+          <div class="form-group">
+            <label for="" class="text-grey">Muzakki</label>
+            <input
+              type="text"
+              class="input-field2"
+              v-model="frontoffice.penyetor"
+              @focus="toggleFocus(true)"
+              required
+            />
+          </div>
+          
+          
+          <div 
+              class="absolute mt-20 w-5/12 max-h-48 overflow-y-auto bg-gray-50 input-field2 outline-lazismu"
+              v-if="isFocus">
 
-        <div v-if="isFocus">
-          <ul v-for="user in data">
-            <li :key="user.id" @click="handleAddUser(user.nama)" class="bg-gray-50 hover:bg-gray-200 cursor-pointer">{{ user.nama }}</li>
-          </ul>
-        </div>
+              <!-- <input
+                type="text"
+                v-model="searchText"
+                class="w-full rounded-md"
+                placeholder="Cari nama..."
+              /> -->
+            <ul v-if="filteredData.length > 0">
+              <li v-for="user in filteredData" :key="user.id" @click="handleAddUser(user.nama)" class="hover:bg-gray-200 cursor-pointer">{{ user.nama }}</li>
+            </ul>
+            <p v-else>Data tidak ditemukan!!</p>
+          </div>
+        
+
+
+
 
         <div class="form-group">
           <label for="" class="text-grey">Penerima</label>
@@ -158,6 +173,11 @@ export default {
       data: [],
       cabang_id: this.$route.params.id,
     }
+  },
+  computed: {
+    filteredData() {
+      return this.data.filter(user => user.nama.toLowerCase().includes(this.frontoffice.penyetor.toLowerCase()));
+    },
   },
   async fetch() {
     ;(this.debit = await this.$axios.get('/coa', {
