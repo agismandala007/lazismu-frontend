@@ -38,10 +38,9 @@
       <div class="form-group">
         <label for="" class="text-grey">Nama Akun</label>
           <input
-            id="nama"
             type="text"
             class="input-field"
-            v-model="name"
+            v-model="coa.name"
             required
           />
       </div>
@@ -86,7 +85,7 @@ export default {
         name: '',
         kode: '',
         laporan: '',
-        // cabang_id: this.$route.params.id,
+        cabang_id: this.$route.params.id,
         tipe: '',
       },
       name: '',
