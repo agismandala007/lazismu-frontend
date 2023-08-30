@@ -43,12 +43,12 @@
             />
           </div>
           <div class="form-group col-span-2">
-            <label for="" class="text-grey">No Bukti Penerima</label>
+            <label for="" class="text-grey">No Bukti Kas</label>
             <input
               type="text"
               class="input-field2"
               v-model="kasbesar.nobuktikas"
-              required
+              readonly
             />
           </div>
         </div>
@@ -116,7 +116,7 @@
               type="text"
               class="input-field2"
               v-model="kasbesar.ref"
-              disabled
+              readonly
             />
           </div>
         </div>
@@ -155,8 +155,14 @@ export default {
       cabang: [],
       listerror: false,
       errors: [],
+      noUrutin: '',
     }
   },
+
+  mounted() {
+    this.fetchData();
+  },
+    
   async fetch() {
     ;(this.debit = await this.$axios.get('/coa', {
       params: {
@@ -173,7 +179,29 @@ export default {
         },
       }))
   },
+
   methods: {
+
+    async fetchData () {
+      let noUrut = await this.$axios.get('/kasbesar/fetchNo')
+
+      let urut =  parseInt(noUrut.data.result.data[0].nobuktikas.substring(0,4)) + 1
+      let zero = ""
+
+      if (urut.toString().length < 4) {
+        for (let i=urut.toString().length; i < 4 ; i++){
+          zero += "0"
+        }
+
+        this.noUrutin = zero + urut + "CRV-OH"
+        this.kasbesar.nobuktikas = this.noUrutin
+      }else{
+        this.noUrutin = (parseInt(noUrut.data.result.data[0].nobuktikas.substring(0,4)) + 1) + "CRV-OH";
+        this.kasbesar.nobuktikas = this.noUrutin
+      }
+    },
+
+
     changeDataPengeluaran() {
       if (this.inputType === false) {
         console.log('ganti ke pengeluaran')
@@ -182,6 +210,7 @@ export default {
         this.temp = this.debit
         this.debit = this.kredit
         this.kredit = this.temp
+        this.kasbesar.nobuktikas = this.noUrutin.substring(0,4)  + "CDV-OH"
       }
       console.log('tetap')
     },
@@ -192,6 +221,7 @@ export default {
         this.temp = this.debit
         this.debit = this.kredit
         this.kredit = this.temp
+        this.kasbesar.nobuktikas = this.noUrutin
         console.log('ganti ke pemasukan')
       }
     },

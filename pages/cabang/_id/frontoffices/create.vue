@@ -23,11 +23,12 @@
           />
         </div>
         <div class="form-group col-span-2">
-          <label for="" class="text-grey">No Bukti Penerima</label>
+          <label for="" class="text-grey">No Urut Bukti</label>
           <input
             type="text"
             class="input-field2"
             v-model="frontoffice.nobuktipenerima"
+            readonly
           />
         </div>
       </div>
@@ -135,7 +136,8 @@
         </div>
         <div class="form-group">
           <label for="" class="text-grey">Ref</label>
-          <input type="text" class="input-field2" v-model="frontoffice.ref" />
+          <input type="text" class="input-field2" v-model="frontoffice.ref" readonly />
+
         </div>
       </div>
 
@@ -160,7 +162,7 @@ export default {
         penerima: '',
         nobuktipenerima: '',
         tanggal: '',
-        ref: '',
+        ref: 'JKSR',
         jumlah: '',
         tempatbayar: '',
         coadebit_id: '',
@@ -172,6 +174,7 @@ export default {
       errors: [],
       data: [],
       cabang_id: this.$route.params.id,
+      noUrutin: '',
     }
   },
   computed: {
@@ -179,6 +182,11 @@ export default {
       return this.data.filter(user => user.nama.toLowerCase().includes(this.frontoffice.penyetor.toLowerCase()));
     },
   },
+
+  mounted() {
+    this.fetchUrut()
+  },
+
   async fetch() {
     ;(this.debit = await this.$axios.get('/coa', {
       params: {
@@ -196,6 +204,20 @@ export default {
       }))
   },
   methods: {
+
+    async fetchUrut() {
+      let noUrut = await this.$axios.get('/frontoffice/fetchNo')
+      let urut = parseInt(noUrut.data.result.data[0].nobuktipenerima.substring(0,4)) + 1
+      let zero = ""
+
+      if (urut.toString().length < 4){
+        for (let i=urut.toString.length; i < 4; i++){
+          zero += "0"
+        }
+
+        this.noUrutin = zero + urut + "BRV-FO"
+      }
+    },
 
     toggleFocus(value = true) {
       this.isFocus = value

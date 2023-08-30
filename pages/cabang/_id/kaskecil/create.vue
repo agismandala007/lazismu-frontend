@@ -43,12 +43,12 @@
             />
           </div>
           <div class="form-group col-span-2">
-            <label for="" class="text-grey">No Bukti Penerima</label>
+            <label for="" class="text-grey">No Urut</label>
             <input
               type="text"
               class="input-field2"
               v-model="kaskecil.nobuktikas"
-              required
+              readonly
             />
           </div>
         </div>
@@ -116,7 +116,7 @@
               type="text"
               class="input-field2"
               v-model="kaskecil.ref"
-              
+              readonly
             />
           </div>
         </div>
@@ -143,7 +143,7 @@ export default {
         penerima: '',
         nobuktikas: '',
         tanggal: '',
-        ref: '',
+        ref: 'JKK',
         jumlah: '',
         coadebit_id: '',
         coakredit_id: '',
@@ -155,8 +155,14 @@ export default {
       cabang: [],
       listerror: false,
       errors: [],
+      noUrutin: '',
     }
   },
+
+  mounted() {
+    this.fetchData();
+  },
+
   async fetch() {
     ;(this.debit = await this.$axios.get('/coa', {
       params: {
@@ -174,6 +180,27 @@ export default {
       }))
   },
   methods: {
+    async fetchData() {
+      let noUrut = await this.$axios.get('/kaskecil/fetchNo')
+
+      let urut =  parseInt(noUrut.data.result.data[0].nobuktikas.substring(0,4)) + 1
+      let zero = ""
+
+      if (urut.toString().length < 4) {
+        for (let i=urut.toString().length; i < 4 ; i++){
+          zero += "0"
+        }
+
+        this.noUrutin = zero + urut + "CRV-KK"
+        this.kaskecil.nobuktikas = this.noUrutin
+      }else{
+        this.noUrutin = (parseInt(noUrut.data.result.data[0].nobuktikas.substring(0,4)) + 1) + "CRV-KK";
+        this.kaskecil.nobuktikas = this.noUrutin
+      }
+    },
+
+
+
     changeDataPengeluaran() {
       if (this.inputType === false) {
         console.log('ganti ke pengeluaran')
@@ -182,6 +209,7 @@ export default {
         this.temp = this.debit
         this.debit = this.kredit
         this.kredit = this.temp
+        this.kaskecil.nobuktikas = this.noUrutin.substring(0,4)  + "CDV-KK"
       }
       console.log('tetap')
     },
@@ -192,6 +220,7 @@ export default {
         this.temp = this.debit
         this.debit = this.kredit
         this.kredit = this.temp
+        this.kaskecil.nobuktikas = this.noUrutin
         console.log('ganti ke pemasukan')
       }
     },

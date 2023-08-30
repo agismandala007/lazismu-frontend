@@ -125,6 +125,7 @@
                   <div class="flex items-center">No.</div>
                 </th>
                 <th scope="col" class="py-3 px-6">Nama</th>
+                <th scope="col" class="py-3 px-6">NIK</th>
                 <th scope="col" class="py-3 px-6">Alamat</th>
                 <th scope="col" class="py-3 px-6">Nomor Telpon</th>
                 <th scope="col" class="py-3 px-6">NPWP</th>
@@ -149,6 +150,7 @@
                 <td scope="row" class="py-4 px-6 font-medium text-gray-900">
                   {{ item.nama }}
                 </td>
+                <td class="py-4 px-6">{{ item.nik }}</td>
                 <td class="py-4 px-6">{{ item.alamat }}</td>
                 <td class="py-4 px-6">{{ item.noTelp }}</td>
                 <td class="py-4 px-6">{{ item.npwp }}</td>

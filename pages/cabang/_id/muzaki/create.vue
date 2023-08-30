@@ -25,6 +25,16 @@
         />
       </div>
       <div class="form-group">
+        <label for="" class="text-grey">NIK</label>
+        <input
+          type="text"
+          class="input-field"
+          value="muzaki.nik"
+          v-model="muzaki.nik"
+          required
+        />
+      </div>
+      <div class="form-group">
         <label for="" class="text-grey">Alamat</label>
         <input
           type="text"
@@ -69,6 +79,7 @@ export default {
     return {
       muzaki: {
         nama: '',
+        nik: '',
         alamat: '',
         noTelp: '',
         npwp: '',
